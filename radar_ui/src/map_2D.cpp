@@ -21,7 +21,7 @@ namespace map_2D
     class map_2D_pub : public rclcpp::Node
     {
     public:
-        map_2D_pub(const rclcpp::NodeOptions &options) : Node("map_2D_node")
+        explicit map_2D_pub(const rclcpp::NodeOptions &options) : Node("map_2D_node")
         {
 
             tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
@@ -177,4 +177,4 @@ namespace map_2D
 
 #include "rclcpp_components/register_node_macro.hpp"
 
-RCLCPP_COMPONENTS_REGISTER_NODE(map_2D::map_2D_pub)
+RCLCPP_COMPONENTS_REGISTER_NODE(map_2D::map_2D_pub) 
