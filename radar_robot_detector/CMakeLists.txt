@@ -16,17 +16,12 @@ ament_auto_find_build_dependencies()
 ## Build ##
 ###########
 
-ament_auto_add_library(${PROJECT_NAME} SHARED
-  DIRECTORY src
+ament_auto_add_executable(detector_node
+    src/detector_node.cpp
 )
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
-
-rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN radar_robot_detector::RobotDetectorNode
-  EXECUTABLE robotDetectorNode
-)
+#target_include_directories(${PROJECT_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})
+#target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 
 #############
 ## Testing ##

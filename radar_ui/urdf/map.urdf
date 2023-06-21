@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<robot name="my_robot">
+
+  <!-- 其他URDF元素 -->
+
+  <!-- 定义一个链接 -->
+  <link name="map">
+    <!-- 链接的几何形状 -->
+    <visual>
+      <geometry>
+        <!-- 使用dae文件定义几何形状 -->
+        <mesh filename = "package://radar_ui/urdf/model/ground.dae" />
+      </geometry>
+      <origin xyz="0 0 -0.2" rpy="-1.57 0 1.57" />
+    </visual>
+  </link>
+
+  <!-- 其他链接和关节定义 -->
+
+</robot>

@@ -1,0 +1,12 @@
+/camera_node:
+  ros__parameters:
+    camera_name: narrow_stereo
+    camera_info_url: package://radar_master/config/camera_info.yaml
+    frame_id: "camera_optical_frame"
+    use_sensor_data_qos: false
+
+    exposure_time: 8000
+    gain: 0.0
+
+    offset_x: 0
+    offset_y: 0

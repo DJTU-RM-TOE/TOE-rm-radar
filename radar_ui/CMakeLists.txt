@@ -20,17 +20,17 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   DIRECTORY src
 )
 
-ament_auto_add_executable(map_2D
-    src/map_2D.cpp
-)
+#ament_auto_add_executable(map_2D
+#    src/map_2D.cpp
+#)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 
-#rclcpp_components_register_node(${PROJECT_NAME}
-#  PLUGIN radar_robot_detector::RobotDetectorNode
-#  EXECUTABLE robotDetectorNode
-#)
+rclcpp_components_register_node(${PROJECT_NAME}
+  PLUGIN map_2D::map_2D_pub
+  EXECUTABLE map_2D_pub_node
+)
 
 #############
 ## Testing ##
@@ -49,4 +49,5 @@ endif()
 ament_auto_package(
   INSTALL_TO_SHARE
   image
+  urdf
 )
