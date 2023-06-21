@@ -9,7 +9,7 @@ namespace radar_detector
   class detector_node : public rclcpp::Node
   {
   public:
-    explicit detector_node(const rclcpp::NodeOptions &options) : Node("detector_node")
+    explicit detector_node(const rclcpp::NodeOptions &options) : Node("detector_node", options)
     {
       broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
 
