@@ -24,7 +24,6 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
 #    src/detector_node.cpp
 #)
 
-
 target_include_directories(${PROJECT_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 
