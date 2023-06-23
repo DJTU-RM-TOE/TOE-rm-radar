@@ -1,5 +1,5 @@
 #include "rclcpp/rclcpp.hpp"
-#include <radar_interfaces/msg/status.hpp>
+#include "radar_interfaces/msg/status.hpp"
 #include <sensor_msgs/msg/image.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.hpp>
@@ -16,10 +16,6 @@ namespace calibration_ui
           "image_raw", 10, std::bind(&calibration_ui_node::videoCallback, this, std::placeholders::_1));
 
       image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("calibration_ui", 10);
-
-      publisher_ = this->create_publisher<radar_interfaces::msg::Status>("radar_status", 10);
-      message_.status = 1;
-      publisher_->publish(message_);
     }
 
   private:
@@ -56,13 +52,10 @@ namespace calibration_ui
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_;
     cv::Mat image;
     cv_bridge::CvImageConstPtr cv_ptr;
+
     //ui图像发布
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr image_pub_;
     sensor_msgs::msg::Image::SharedPtr img_msg_;
-    //状态机发布
-    rclcpp::Publisher<radar_interfaces::msg::Status>::SharedPtr publisher_;
-    radar_interfaces::msg::Status message_;
-    rclcpp::TimerBase::SharedPtr timer_;
 
     //ui
     std::vector<cv::Point> points;

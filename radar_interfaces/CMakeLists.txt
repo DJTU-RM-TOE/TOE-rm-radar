@@ -12,6 +12,8 @@ find_package(geometry_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Status.msg"
+  "msg/CalibrationUi.msg"
+  "msg/Keyboard.msg"
 
   DEPENDENCIES
     std_msgs
