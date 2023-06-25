@@ -5,6 +5,7 @@
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "radar_interfaces/msg/status.hpp"
 #include "radar_interfaces/msg/keyboard.hpp"
+#include "radar_interfaces/msg/calibration_ui.hpp"
 
 namespace radar_detector
 {
@@ -18,8 +19,11 @@ namespace radar_detector
       subscription_keyboard_ = create_subscription<radar_interfaces::msg::Keyboard>(
           "keyboard", 10, std::bind(&detector_node::keyboardCallback, this, std::placeholders::_1));
 
-      // 状态机发布
+      // 标定信息发布
+      publisher_calibrationui_ = create_publisher<radar_interfaces::msg::CalibrationUi>("calibration", 10);
+
       RCLCPP_INFO(this->get_logger(), "开始正式运行");
+
       // tf发布
       broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
       detector_data();
@@ -35,21 +39,35 @@ namespace radar_detector
         point_select++;
       if (msg->keynum == 101 && point_select > 0)
         point_select--;
-      if (msg->keynum == 119 && point_x[point_select] < 1280)
+      if (msg->keynum == 115 && point_x[point_select] < 1280)
         point_x[point_select]++;
-      if (msg->keynum == 115 && point_x[point_select] > 1280)
+      if (msg->keynum == 119 && point_x[point_select] > 0)
         point_x[point_select]--;
-      if (msg->keynum == 97 && point_y[point_select] < 1024)
+      if (msg->keynum == 100 && point_y[point_select] < 1024)
         point_y[point_select]++;
-      if (msg->keynum == 100 && point_y[point_select] > 1024)
+      if (msg->keynum == 97 && point_y[point_select] > 0)
         point_y[point_select]--;
       if (msg->keynum == 10)
       {
+        // 状态机发布单次
         status_flag = 1;
-        publisher_ = this->create_publisher<radar_interfaces::msg::Status>("radar_status", 10);
+        publisher_status_ = this->create_publisher<radar_interfaces::msg::Status>("radar_status", 10);
         message_.status = status_flag;
-        publisher_->publish(message_);
+        publisher_status_ ->publish(message_);
       }
+
+      auto message = radar_interfaces::msg::CalibrationUi();
+      message.point = point_select;
+      message.base_x1 = point_x[0];
+      message.base_y1 = point_y[0];
+      message.base_x2 = point_x[1];
+      message.base_y2 = point_y[1];
+      message.base_x3 = point_x[2];
+      message.base_y3 = point_y[2];
+      message.base_x4 = point_x[3];
+      message.base_y4 = point_y[3];
+      
+      publisher_calibrationui_->publish(message);
     }
 
     void detector_data()
@@ -169,11 +187,13 @@ namespace radar_detector
 
     int status_flag = 0;
 
-    // 状态机发布
-    rclcpp::Publisher<radar_interfaces::msg::Status>::SharedPtr publisher_;
-    radar_interfaces::msg::Status message_;
-    //
+    rclcpp::Publisher<radar_interfaces::msg::CalibrationUi>::SharedPtr publisher_calibrationui_;
 
+    // 状态机发布
+    rclcpp::Publisher<radar_interfaces::msg::Status>::SharedPtr publisher_status_;
+    radar_interfaces::msg::Status message_;
+
+    //
     std::shared_ptr<tf2_ros::TransformBroadcaster> broadcaster_;
     geometry_msgs::msg::TransformStamped transformStamped_b1;
     geometry_msgs::msg::TransformStamped transformStamped_b2;

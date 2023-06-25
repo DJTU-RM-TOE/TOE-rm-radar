@@ -22,7 +22,8 @@ launch_params = yaml.safe_load(
 
 node_params = os.path.join(
     get_package_share_directory("radar_master"), "config", "node_params.yaml"
-)   
+)
+   
 def get_camera_node(package, plugin):
     return ComposableNode(
         package=package,
@@ -76,15 +77,24 @@ def get_map_2D_node(package, plugin):
         extra_arguments=[{"use_intra_process_comms": True}],
     )
     
-
-def get_radar_ui_container(ui_node):
+def get_save_node(package, plugin):
+    return ComposableNode(
+        package=package,
+        plugin=plugin,
+        name="save_node",
+        parameters=[node_params],
+        extra_arguments=[{"use_intra_process_comms": True}],
+    )
+    
+def get_radar_ui_container(ui_node,save_node):
     return ComposableNodeContainer(
         name='radar_ui_container',
         namespace='',
         package='rclcpp_components',
         executable='component_container',
         composable_node_descriptions=[
-            ui_node
+            ui_node,
+            save_node
         ],
         output='screen',
         ros_arguments=['--ros-args', '--log-level',

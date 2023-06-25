@@ -5,7 +5,7 @@
     frame_id: "camera_optical_frame"
     use_sensor_data_qos: false
 
-    exposure_time: 8000
+    exposure_time: 15000
     gain: 0.0
 
     offset_x: 0

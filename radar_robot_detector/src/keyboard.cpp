@@ -11,7 +11,7 @@ public:
   PublisherNode() : Node("keypub_node")
   {
     publisher_ = this->create_publisher<radar_interfaces::msg::Keyboard>("keyboard", 10);
-    timer_ = this->create_wall_timer(std::chrono::milliseconds(10), std::bind(&PublisherNode::publishMessage, this));
+    timer_ = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&PublisherNode::publishMessage, this));
   }
 
 private:
