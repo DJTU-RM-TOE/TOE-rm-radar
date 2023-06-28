@@ -1,0 +1,42 @@
+#include <iostream>
+#include <opencv2/opencv.hpp>
+
+#include "radar_interfaces/msg/calibration_tf.hpp"
+
+namespace radar_orientation
+{
+    extern int status_flag;
+    extern std::vector<std::vector<int>> point;
+    class pnp_solver
+    {
+    public:
+        void calibration_solver();
+        void solver_2Dto3D();
+        void solver_3Dto2D();
+
+        std::vector<cv::Point2f> imagePoints;
+        std::vector<cv::Point3f> worldPoints;
+        // 3D点坐标
+        std::vector<cv::Point3f> Points3d;
+
+        // 2D图像中点坐标
+        std::vector<cv::Point2f> Points2d;
+
+        // 相机内参矩阵
+        cv::Mat cameraMatrix; 
+
+        // 畸变系数
+        cv::Mat distCoeffs; 
+
+        // 旋转向量
+        cv::Mat rvec;
+
+        // 平移向量
+        cv::Mat tvec;
+
+        rclcpp::Publisher<radar_interfaces::msg::CalibrationTf>::SharedPtr publisher_calibrationtf_;
+        radar_interfaces::msg::CalibrationTf calibrationtf_message_;
+        
+    };
+
+}

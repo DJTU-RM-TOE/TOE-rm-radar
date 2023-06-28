@@ -1,10 +1,12 @@
 #include "rclcpp/rclcpp.hpp"
-#include "radar_interfaces/msg/status.hpp"
 #include <sensor_msgs/msg/image.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.hpp>
 #include <opencv2/opencv.hpp>
+
+#include "radar_interfaces/msg/status.hpp"
 #include "radar_interfaces/msg/calibration_ui.hpp"
+#include "radar_interfaces/msg/calibration_tf.hpp"
 
 namespace calibration_ui
 {
@@ -18,6 +20,9 @@ namespace calibration_ui
 
       subscription_calibrationui_ = create_subscription<radar_interfaces::msg::CalibrationUi>(
           "calibration", 10, std::bind(&calibration_ui_node::CalibrationCallback, this, std::placeholders::_1));
+
+      subscription_calibrationtf_ = create_subscription<radar_interfaces::msg::CalibrationTf>(
+          "calibration_tf", 10, std::bind(&calibration_ui_node::CalibrationTfCallback, this, std::placeholders::_1));
 
       image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("calibration_ui", 10);
     }
@@ -40,15 +45,23 @@ namespace calibration_ui
       img = cv_ptr->image;
       image = img;
       // 标定框
-
       points.clear();
-      points.push_back(cv::Point(point_y[0], point_x[0]));
-      points.push_back(cv::Point(point_y[1], point_x[1]));
-      points.push_back(cv::Point(point_y[2], point_x[2]));
-      points.push_back(cv::Point(point_y[3], point_x[3]));
-      points.push_back(points[0]);
+      
+      points.push_back(cv::Point(point_x[0], point_y[0]));
+      points.push_back(cv::Point(point_x[1], point_y[1]));
+      points.push_back(cv::Point(point_x[2], point_y[2]));
+      points.push_back(cv::Point(point_x[3], point_y[3]));
 
       cv::polylines(image, points, true, cv::Scalar(0, 255, 0), 2);
+      // 区域1
+      points.clear();
+      points.push_back(cv::Point(region1[0][0], region1[0][1]));
+      points.push_back(cv::Point(region1[1][0], region1[1][1]));
+      points.push_back(cv::Point(region1[2][0], region1[2][1]));
+      points.push_back(cv::Point(region1[3][0], region1[3][1]));
+      points.push_back(points[0]);
+
+      cv::polylines(image, points, true, cv::Scalar(255, 0, 0), 2);
 
       img_msg_ = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image).toImageMsg();
       image_pub_->publish(*img_msg_); // 发布图像消息
@@ -65,6 +78,18 @@ namespace calibration_ui
       point_y[2] = msg->base_y3;
       point_x[3] = msg->base_x4;
       point_y[3] = msg->base_y4;
+    }
+
+    void CalibrationTfCallback(const radar_interfaces::msg::CalibrationTf::SharedPtr msg)
+    {
+      region1[0][0] = (int)msg->region[0];
+      region1[0][1] = (int)msg->region[1];
+      region1[1][0] = (int)msg->region[2];
+      region1[1][1] = (int)msg->region[3];
+      region1[2][0] = (int)msg->region[4];
+      region1[2][1] = (int)msg->region[5];
+      region1[3][0] = (int)msg->region[6];
+      region1[3][1] = (int)msg->region[7];
     }
 
     // 接收相机图像
@@ -84,10 +109,14 @@ namespace calibration_ui
     // ui
     std::vector<cv::Point> points;
 
+    rclcpp::Subscription<radar_interfaces::msg::CalibrationTf>::SharedPtr subscription_calibrationtf_;
+
     int point_select = 0;
 
     int point_x[4];
     int point_y[4];
+
+    int region1[4][2];
   };
 }
 

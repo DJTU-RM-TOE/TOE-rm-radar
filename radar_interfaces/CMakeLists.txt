@@ -14,6 +14,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Status.msg"
   "msg/CalibrationUi.msg"
   "msg/Keyboard.msg"
+  "msg/CalibrationTf.msg"
 
   DEPENDENCIES
     std_msgs

@@ -9,12 +9,14 @@
     <visual>
       <geometry>
         <!-- 使用dae文件定义几何形状 -->
-        <mesh filename = "package://radar_ui/urdf/model/ground.dae" />
+        <mesh filename = "file:///home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_ui/urdf/model/cube.dae" scale="0.1 0.1 0.1"/>
       </geometry>
-      <origin xyz="0 0 -0.2" rpy="-1.57 0 1.57" />
+      <origin xyz="0 0 0" rpy="0 0 0" />
     </visual>
   </link>
 
   <!-- 其他链接和关节定义 -->
 
 </robot>
+
+

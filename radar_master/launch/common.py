@@ -33,11 +33,11 @@ def get_camera_node(package, plugin):
         extra_arguments=[{"use_intra_process_comms": True}],
     )
 
-def get_radar_robot_detector_node(package, plugin):
+def get_radar_orientation_node(package, plugin):
     return ComposableNode(
         package=package,
         plugin=plugin,
-        name="radar_robot_detector_node",
+        name="orientation_node",
         parameters=[node_params],
         extra_arguments=[{"use_intra_process_comms": True}],
     )

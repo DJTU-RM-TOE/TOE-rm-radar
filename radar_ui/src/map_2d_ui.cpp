@@ -131,7 +131,7 @@ namespace map_2d_ui
             }
             catch (tf2::TransformException &ex)
             {
-                RCLCPP_WARN(this->get_logger(), "Failed to receive transform: %s", ex.what());
+                //RCLCPP_WARN(this->get_logger(), "Failed to receive transform: %s", ex.what());
             }
         }
 

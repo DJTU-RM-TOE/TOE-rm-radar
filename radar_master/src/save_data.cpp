@@ -59,19 +59,41 @@ namespace save_data
 
         void savedata()
         {
-            cv::FileStorage fs("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_master/config/ui.yaml", cv::FileStorage::WRITE);
 
-            fs << "point" << point_select;
-            fs << "base_x1" << point_x[0];
-            fs << "base_y1" << point_y[0];
-            fs << "base_x2" << point_x[1];
-            fs << "base_y2" << point_y[1];
-            fs << "base_x3" << point_x[2];
-            fs << "base_y3" << point_y[2];
-            fs << "base_x4" << point_x[3];
-            fs << "base_y4" << point_y[3];
+            // 写入完成
+            cv::FileStorage tempFile("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_master/config/ui.yaml", cv::FileStorage::WRITE);
 
-            fs.release();
+            int lineCount = 0;
+
+            tempFile << "point" << point_select;
+            tempFile << "base_x1" << point_x[0];
+            tempFile << "base_y1" << point_y[0];
+            tempFile << "base_x2" << point_x[1];
+            tempFile << "base_y2" << point_y[1];
+            tempFile << "base_x3" << point_x[2];
+            tempFile << "base_y3" << point_y[2];
+            tempFile << "base_x4" << point_x[3];
+            tempFile << "base_y4" << point_y[3];
+
+            tempFile.release();
+
+            std::ofstream outputFile("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_master/config/ui_.yaml");
+            std::ifstream tempFile_("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_master/config/ui.yaml");
+
+            std::string line;
+            while (std::getline(tempFile_, line))
+            {
+                if (line != "%YAML:1.0" && line != "---")
+                {
+                    outputFile<< line << std::endl;
+                }
+            }
+
+            outputFile.close();
+            tempFile_.close();
+
+            std::remove("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_master/config/ui.yaml");
+            std::rename("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_master/config/ui_.yaml", "/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_master/config/ui.yaml"); // 重命名为input.yaml
         }
 
         void topic_callback(const radar_interfaces::msg::Status::SharedPtr msg)
