@@ -5,28 +5,11 @@ namespace radar_orientation
 {
     void pnp_solver::calibration_solver()
     {
-        
-        worldPoints.push_back(cv::Point3f(2744, 5078, 1556));
-        worldPoints.push_back(cv::Point3f(-5195, 1772, 615));
-        worldPoints.push_back(cv::Point3f(-5195, 1112, 615));
-        worldPoints.push_back(cv::Point3f(12166, 0, 1106));
-
-        imagePoints.push_back(cv::Point2f(605, 553));
-        imagePoints.push_back(cv::Point2f(875, 779));
-        imagePoints.push_back(cv::Point2f(952, 779));
-        imagePoints.push_back(cv::Point2f(924, 507));
-
-        /*
-        worldPoints.push_back(cv::Point3f(100, 100, ));
-        worldPoints.push_back(cv::Point3f(-100, 100, ));
-        worldPoints.push_back(cv::Point3f(-100, -100, 0));
-        worldPoints.push_back(cv::Point3f(100, -100, 0));
-
-        imagePoints.push_back(cv::Point2f(200, 400));
-        imagePoints.push_back(cv::Point2f(400, 400));
-        imagePoints.push_back(cv::Point2f(400, 600));
-        imagePoints.push_back(cv::Point2f(200, 600));
-        */
+        for (int i = 0; i < 4; i++)
+        {
+            worldPoints.push_back(cv::Point3f(worldPoints_param[i][0], worldPoints_param[i][1], worldPoints_param[i][2]));
+            imagePoints.push_back(cv::Point2f(point[i][0], point[i][1]));
+        }
 
         cameraMatrix = (cv::Mat_<double>(3, 3) << 1821.366144, 0, 625.708393, 0, 1813.445553, 514.595196, 0, 0, 1);
         distCoeffs = (cv::Mat_<double>(5, 1) << -0.143932, 0.147997, 0, 0, 0);
@@ -41,11 +24,30 @@ namespace radar_orientation
 
     void pnp_solver::solver_3Dto2D()
     {
-        Points3d.push_back(cv::Point3f(6000, 6000, 0));
-        Points3d.push_back(cv::Point3f(-6000, 6000, 0));
-        Points3d.push_back(cv::Point3f(-6000, -6000, 0));
-        Points3d.push_back(cv::Point3f(6000, -6000, 0));
+        for (int i = 0; i < 4; i++)
+        {
+            Points3d.push_back(cv::Point3f(region_1_param[i][0], region_1_param[i][1], region_1_param[i][2]));
+        }
         cv::projectPoints(Points3d, rvec, tvec, cameraMatrix, distCoeffs, Points2d);
+    }
+
+    void pnp_solver::get_pnp_argument(std::vector<int64_t> param_0, std::vector<int64_t> region_1)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                worldPoints_param[i][j] = param_0[i * 3 + j];
+            }
+        }
+
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                region_1_param[i][j] = region_1[i * 3 + j];
+            }
+        }
     }
 
 }

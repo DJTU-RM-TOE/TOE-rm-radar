@@ -17,6 +17,8 @@ namespace radar_orientation
     // 载入参数
     RCLCPP_INFO(this->get_logger(), "载入参数");
     calibration_module.get_calibration_argument(this->declare_parameter<std::vector<int64_t>>("base", calibration_module.acquiesce));
+    pnp_solver_module.get_pnp_argument(this->declare_parameter<std::vector<int64_t>>("base_3d", pnp_solver_module.Points4_list),
+                                       this->declare_parameter<std::vector<int64_t>>("region_1", pnp_solver_module.Points4_list));
 
     // 标定部分
     RCLCPP_INFO(this->get_logger(), "进入标定状态");
