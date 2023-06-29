@@ -13,8 +13,16 @@ namespace calibration_ui
   class calibration_ui_node : public rclcpp::Node
   {
   public:
-    explicit calibration_ui_node(const rclcpp::NodeOptions &options) : Node("publisher_node", options)
+    explicit calibration_ui_node(const rclcpp::NodeOptions &options) : Node("calibration_ui_node", options)
     {
+      region_list = this->declare_parameter<std::vector<int64_t>>("region_list");
+      region_num = sizeof(region_list) / sizeof(region_list[0]);
+      for (int i = 0; i < region_num; i++)
+      {
+        region_pointnum += region_list[i];
+      }
+
+      RCLCPP_INFO(this->get_logger(), "开始运行");
       subscription_ = create_subscription<sensor_msgs::msg::Image>(
           "image_raw", 10, std::bind(&calibration_ui_node::videoCallback, this, std::placeholders::_1));
 
@@ -46,22 +54,48 @@ namespace calibration_ui
       image = img;
       // 标定框
       points.clear();
-      
+
       points.push_back(cv::Point(point_x[0], point_y[0]));
       points.push_back(cv::Point(point_x[1], point_y[1]));
       points.push_back(cv::Point(point_x[2], point_y[2]));
       points.push_back(cv::Point(point_x[3], point_y[3]));
 
-      cv::polylines(image, points, true, cv::Scalar(0, 255, 0), 2);
+      cv::polylines(image, points, true, cv::Scalar(0, 255, 0), 1);
       // 区域1
-      points.clear();
-      points.push_back(cv::Point(region1[0][0], region1[0][1]));
-      points.push_back(cv::Point(region1[1][0], region1[1][1]));
-      points.push_back(cv::Point(region1[2][0], region1[2][1]));
-      points.push_back(cv::Point(region1[3][0], region1[3][1]));
-      points.push_back(points[0]);
+      /*
+      int leave = 0;
+      for (int i; i < 1; i++)
+      {
+        points.clear();
+        for (int j; j < region_list[i]; j++)
+        {
+          points.push_back(cv::Point(region[leave + j][0], region[leave + j][1]));
+        }
 
-      cv::polylines(image, points, true, cv::Scalar(255, 0, 0), 2);
+        cv::polylines(image, points, true, cv::Scalar(255, 0, 0), 2);
+        leave += region_list[i];
+      }
+      */
+      points.clear();
+      points.push_back(cv::Point(region[0][0], region[0][1]));
+      points.push_back(cv::Point(region[1][0], region[1][1]));
+      points.push_back(cv::Point(region[2][0], region[2][1]));
+      points.push_back(cv::Point(region[3][0], region[3][1]));
+      cv::polylines(image, points, true, cv::Scalar(255, 0, 0), 1);
+
+      points.clear();
+      points.push_back(cv::Point(region[4][0], region[4][1]));
+      points.push_back(cv::Point(region[5][0], region[5][1]));
+      points.push_back(cv::Point(region[6][0], region[6][1]));
+      points.push_back(cv::Point(region[7][0], region[7][1]));
+      cv::polylines(image, points, true, cv::Scalar(255, 0, 0), 1);
+
+      points.clear();
+      points.push_back(cv::Point(region[8][0], region[8][1]));
+      points.push_back(cv::Point(region[9][0], region[9][1]));
+      points.push_back(cv::Point(region[10][0], region[10][1]));
+      points.push_back(cv::Point(region[11][0], region[11][1]));
+      cv::polylines(image, points, true, cv::Scalar(255, 0, 0), 1);
 
       img_msg_ = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image).toImageMsg();
       image_pub_->publish(*img_msg_); // 发布图像消息
@@ -82,14 +116,11 @@ namespace calibration_ui
 
     void CalibrationTfCallback(const radar_interfaces::msg::CalibrationTf::SharedPtr msg)
     {
-      region1[0][0] = (int)msg->region[0];
-      region1[0][1] = (int)msg->region[1];
-      region1[1][0] = (int)msg->region[2];
-      region1[1][1] = (int)msg->region[3];
-      region1[2][0] = (int)msg->region[4];
-      region1[2][1] = (int)msg->region[5];
-      region1[3][0] = (int)msg->region[6];
-      region1[3][1] = (int)msg->region[7];
+      for (int i = 0; i < region_pointnum; i++)
+      {
+        region[i][0] = (int)msg->region[2 * i];
+        region[i][1] = (int)msg->region[2 * i + 1];
+      }
     }
 
     // 接收相机图像
@@ -116,7 +147,11 @@ namespace calibration_ui
     int point_x[4];
     int point_y[4];
 
-    int region1[4][2];
+    int region_num = 0;
+    int region_pointnum = 0;
+    int region[12][2];
+
+    std::vector<int64_t> region_list;
   };
 }
 

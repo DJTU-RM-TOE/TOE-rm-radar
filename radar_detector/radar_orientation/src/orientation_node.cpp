@@ -18,7 +18,8 @@ namespace radar_orientation
     RCLCPP_INFO(this->get_logger(), "载入参数");
     calibration_module.get_calibration_argument(this->declare_parameter<std::vector<int64_t>>("base", calibration_module.acquiesce));
     pnp_solver_module.get_pnp_argument(this->declare_parameter<std::vector<int64_t>>("base_3d", pnp_solver_module.Points4_list),
-                                       this->declare_parameter<std::vector<int64_t>>("region_1", pnp_solver_module.Points4_list));
+                                       this->declare_parameter<std::vector<int64_t>>("region_list"),
+                                       this->declare_parameter<std::vector<int64_t>>("region"));
 
     // 标定部分
     RCLCPP_INFO(this->get_logger(), "进入标定状态");
@@ -113,7 +114,7 @@ namespace radar_orientation
   {
     if (calibration_module.enter_flag == 1)
     {
-      //按下Enter正式执行主程序前信息发布的代码
+      // 按下Enter正式执行主程序前信息发布的代码
 
       RCLCPP_INFO(this->get_logger(), "开始正式运行");
       status_flag = 1;
@@ -127,19 +128,19 @@ namespace radar_orientation
 
       pnp_solver_module.solver_3Dto2D();
 
-      //发布
+      // 发布
       pnp_solver_module.publisher_calibrationtf_ = this->create_publisher<radar_interfaces::msg::CalibrationTf>("calibration_tf", 10);
       pnp_solver_module.calibrationtf_message_.rvec = pnp_solver_module.rvec;
       pnp_solver_module.calibrationtf_message_.tvec = pnp_solver_module.tvec;
 
       // 数组
-      cv::Mat mat(8, 1, CV_32S);
+      cv::Mat mat(pnp_solver_module.region_pointnum*2, 1, CV_32S);
 
       // 逐个添加向量中的元素到矩阵中
-      for (int i = 0; i < 4; i++)
+      for (int i = 0; i < pnp_solver_module.region_pointnum; i++)
       {
-        mat.at<cv::Vec2i>(2*i, 0) = static_cast<int>(pnp_solver_module.Points2d[i].x);
-        mat.at<cv::Vec2i>(2*i+1, 0) = static_cast<int>(pnp_solver_module.Points2d[i].y);
+        mat.at<cv::Vec2i>(2 * i, 0) = static_cast<int>(pnp_solver_module.Points2d[i].x);
+        mat.at<cv::Vec2i>(2 * i + 1, 0) = static_cast<int>(pnp_solver_module.Points2d[i].y);
       }
 
       pnp_solver_module.calibrationtf_message_.region = mat;
@@ -182,4 +183,3 @@ namespace radar_orientation
 #include "rclcpp_components/register_node_macro.hpp"
 
 RCLCPP_COMPONENTS_REGISTER_NODE(radar_orientation::OrientationNode);
-

@@ -24,14 +24,14 @@ namespace radar_orientation
 
     void pnp_solver::solver_3Dto2D()
     {
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < region_pointnum; i++)
         {
-            Points3d.push_back(cv::Point3f(region_1_param[i][0], region_1_param[i][1], region_1_param[i][2]));
+            Points3d.push_back(cv::Point3f(region_param[i][0], region_param[i][1], region_param[i][2]));
         }
         cv::projectPoints(Points3d, rvec, tvec, cameraMatrix, distCoeffs, Points2d);
     }
 
-    void pnp_solver::get_pnp_argument(std::vector<int64_t> param_0, std::vector<int64_t> region_1)
+    void pnp_solver::get_pnp_argument(std::vector<int64_t> param_0, std::vector<int64_t> region_list, std::vector<int64_t> region)
     {
         for (int i = 0; i < 4; i++)
         {
@@ -41,11 +41,16 @@ namespace radar_orientation
             }
         }
 
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < sizeof(region_list) / sizeof(region_list[0]); i++)
+        {
+            region_pointnum += region_list[i];
+        }
+
+        for (int i = 0; i < region_pointnum; i++)
         {
             for (int j = 0; j < 3; j++)
             {
-                region_1_param[i][j] = region_1[i * 3 + j];
+                region_param[i][j] = region[i * 3 + j];
             }
         }
     }
