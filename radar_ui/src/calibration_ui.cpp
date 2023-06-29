@@ -16,11 +16,14 @@ namespace calibration_ui
     explicit calibration_ui_node(const rclcpp::NodeOptions &options) : Node("calibration_ui_node", options)
     {
       region_list = this->declare_parameter<std::vector<int64_t>>("region_list");
-      region_num = sizeof(region_list) / sizeof(region_list[0]);
+      region_num = this->declare_parameter<int32_t>("region_num");
       for (int i = 0; i < region_num; i++)
       {
         region_pointnum += region_list[i];
       }
+      
+      RCLCPP_INFO(this->get_logger(), "%d", region_num);
+      RCLCPP_INFO(this->get_logger(), "%d", region_pointnum);
 
       RCLCPP_INFO(this->get_logger(), "开始运行");
       subscription_ = create_subscription<sensor_msgs::msg::Image>(
@@ -52,6 +55,10 @@ namespace calibration_ui
       // 使用cv_ptr来访问OpenCV格式的视频流数据
       img = cv_ptr->image;
       image = img;
+
+      int width = image.cols;
+      int height = image.rows;
+
       // 标定框
       points.clear();
 
@@ -61,6 +68,19 @@ namespace calibration_ui
       points.push_back(cv::Point(point_x[3], point_y[3]));
 
       cv::polylines(image, points, true, cv::Scalar(0, 255, 0), 1);
+
+      int x_start = std::max(point_x[point_select] - 5, 0);
+      int y_start = std::max(point_y[point_select] - 5, 0);
+      int x_end = std::min(point_x[point_select] + 6, width - 1);
+      int y_end = std::min(point_y[point_select] + 6, height - 1);
+
+      cv::Mat roi_ = image(cv::Range(y_start, y_end + 1), cv::Range(x_start, x_end + 1));
+      cv::Mat roi;
+
+      cv::resize(roi_, roi, cv::Size(220, 220), 0, 0, cv::INTER_LINEAR);
+
+      // cv::Mat roi = image(cv::Range(point_x[0]-6, point_x[0]+5), cv::Range(point_y[0]-6, point_y[0]+5));
+
       // 区域1
       /*
       int leave = 0;
@@ -81,23 +101,48 @@ namespace calibration_ui
       points.push_back(cv::Point(region[1][0], region[1][1]));
       points.push_back(cv::Point(region[2][0], region[2][1]));
       points.push_back(cv::Point(region[3][0], region[3][1]));
-      cv::polylines(image, points, true, cv::Scalar(255, 0, 0), 1);
+      cv::polylines(image, points, true, cv::Scalar(255, 0, 0), 2);
 
       points.clear();
       points.push_back(cv::Point(region[4][0], region[4][1]));
       points.push_back(cv::Point(region[5][0], region[5][1]));
       points.push_back(cv::Point(region[6][0], region[6][1]));
       points.push_back(cv::Point(region[7][0], region[7][1]));
-      cv::polylines(image, points, true, cv::Scalar(255, 0, 0), 1);
+      cv::polylines(image, points, true, cv::Scalar(255, 0, 0), 2);
 
       points.clear();
       points.push_back(cv::Point(region[8][0], region[8][1]));
       points.push_back(cv::Point(region[9][0], region[9][1]));
       points.push_back(cv::Point(region[10][0], region[10][1]));
       points.push_back(cv::Point(region[11][0], region[11][1]));
-      cv::polylines(image, points, true, cv::Scalar(255, 0, 0), 1);
+      cv::polylines(image, points, true, cv::Scalar(255, 0, 0), 2);
 
-      img_msg_ = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image).toImageMsg();
+      points.clear();
+      points.push_back(cv::Point(region[12][0], region[12][1]));
+      points.push_back(cv::Point(region[13][0], region[13][1]));
+      points.push_back(cv::Point(region[14][0], region[14][1]));
+      points.push_back(cv::Point(region[15][0], region[15][1]));
+      points.push_back(cv::Point(region[16][0], region[16][1]));
+      points.push_back(cv::Point(region[17][0], region[17][1]));
+      points.push_back(cv::Point(region[18][0], region[18][1]));
+
+      cv::polylines(image, points, true, cv::Scalar(255, 0, 0), 2);
+
+      // 创建一个新的图像，用于合并两张图像
+      cv::Mat merged_image(std::max(image.rows, roi.rows), image.cols + roi.cols, CV_8UC3);
+      merged_image.setTo(cv::Scalar(0, 0, 0));
+
+      // 将第一张图像复制到合并图像的左侧
+      cv::Rect roi1(cv::Rect(0, 0, image.cols, image.rows));
+      cv::Mat roi_image1(merged_image, roi1);
+      image.copyTo(roi_image1);
+
+      // 将第二张图像复制到合并图像的右侧
+      cv::Rect roi2(cv::Rect(image.cols, 0, roi.cols, roi.rows));
+      cv::Mat roi_image2(merged_image, roi2);
+      roi.copyTo(roi_image2);
+
+      img_msg_ = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", merged_image).toImageMsg();
       image_pub_->publish(*img_msg_); // 发布图像消息
     }
 
@@ -149,7 +194,7 @@ namespace calibration_ui
 
     int region_num = 0;
     int region_pointnum = 0;
-    int region[12][2];
+    int region[19][2];
 
     std::vector<int64_t> region_list;
   };

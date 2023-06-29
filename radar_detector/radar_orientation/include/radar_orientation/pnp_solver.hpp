@@ -10,7 +10,7 @@ namespace radar_orientation
     class pnp_solver
     {
     public:
-        void get_pnp_argument(std::vector<int64_t> param_0, std::vector<int64_t> region_list, std::vector<int64_t> region);
+        void get_pnp_argument(std::vector<int64_t> param_0, int32_t region_num_param, std::vector<int64_t> region_list, std::vector<int64_t> region);
         void calibration_solver();
         void solver_2Dto3D();
         void solver_3Dto2D();
@@ -19,10 +19,9 @@ namespace radar_orientation
         std::vector<cv::Point3f> worldPoints;
         // 3D点坐标
         double worldPoints_param[4][3];
-        double region_param[12][3];
+        double region_param[19][3];
 
         std::vector<int64_t> Points4_list{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        
 
         std::vector<cv::Point3f> Points3d;
 
@@ -45,6 +44,7 @@ namespace radar_orientation
         radar_interfaces::msg::CalibrationTf calibrationtf_message_;
 
         int region_pointnum = 0;
+        int region_num = 0;
     };
 
 }

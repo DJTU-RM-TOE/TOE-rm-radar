@@ -31,7 +31,7 @@ namespace radar_orientation
         cv::projectPoints(Points3d, rvec, tvec, cameraMatrix, distCoeffs, Points2d);
     }
 
-    void pnp_solver::get_pnp_argument(std::vector<int64_t> param_0, std::vector<int64_t> region_list, std::vector<int64_t> region)
+    void pnp_solver::get_pnp_argument(std::vector<int64_t> param_0, int32_t region_num_param, std::vector<int64_t> region_list, std::vector<int64_t> region)
     {
         for (int i = 0; i < 4; i++)
         {
@@ -41,7 +41,9 @@ namespace radar_orientation
             }
         }
 
-        for (int i = 0; i < sizeof(region_list) / sizeof(region_list[0]); i++)
+        region_num = region_num_param;
+        
+        for (int i = 0; i < region_num; i++)
         {
             region_pointnum += region_list[i];
         }
@@ -54,5 +56,4 @@ namespace radar_orientation
             }
         }
     }
-
 }

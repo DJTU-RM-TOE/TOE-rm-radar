@@ -18,6 +18,7 @@ namespace radar_orientation
     RCLCPP_INFO(this->get_logger(), "载入参数");
     calibration_module.get_calibration_argument(this->declare_parameter<std::vector<int64_t>>("base", calibration_module.acquiesce));
     pnp_solver_module.get_pnp_argument(this->declare_parameter<std::vector<int64_t>>("base_3d", pnp_solver_module.Points4_list),
+                                       this->declare_parameter<int32_t>("region_num"),
                                        this->declare_parameter<std::vector<int64_t>>("region_list"),
                                        this->declare_parameter<std::vector<int64_t>>("region"));
 
@@ -133,8 +134,10 @@ namespace radar_orientation
       pnp_solver_module.calibrationtf_message_.rvec = pnp_solver_module.rvec;
       pnp_solver_module.calibrationtf_message_.tvec = pnp_solver_module.tvec;
 
+      RCLCPP_INFO(this->get_logger(), "%d", pnp_solver_module.region_pointnum);
+
       // 数组
-      cv::Mat mat(pnp_solver_module.region_pointnum*2, 1, CV_32S);
+      cv::Mat mat(pnp_solver_module.region_pointnum * 2, 1, CV_32S);
 
       // 逐个添加向量中的元素到矩阵中
       for (int i = 0; i < pnp_solver_module.region_pointnum; i++)
