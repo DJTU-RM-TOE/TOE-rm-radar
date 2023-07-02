@@ -86,6 +86,15 @@ def get_save_node(package, plugin):
         extra_arguments=[{"use_intra_process_comms": True}],
     )
     
+def get_serial_node(package, plugin):
+    return ComposableNode(
+        package=package,
+        plugin=plugin,
+        name="serial_node",
+        parameters=[node_params],
+        extra_arguments=[{"use_intra_process_comms": True}],
+    )
+    
 def get_radar_ui_container(ui_node,save_node):
     return ComposableNodeContainer(
         name='radar_ui_container',
