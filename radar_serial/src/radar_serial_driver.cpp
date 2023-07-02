@@ -36,6 +36,7 @@ namespace radar_serial_driver
       if (!serial_driver_->port()->is_open())
       {
         serial_driver_->port()->open();
+        receive_thread_ = std::thread(&RadarSerialDriver::receiveData, this);
       }
     }
     catch (const std::exception &ex)
@@ -50,6 +51,11 @@ namespace radar_serial_driver
 
   RadarSerialDriver::~RadarSerialDriver()
   {
+    if (receive_thread_.joinable())
+    {
+      receive_thread_.join();
+    }
+
     if (serial_driver_->port()->is_open())
     {
       serial_driver_->port()->close();
@@ -63,11 +69,40 @@ namespace radar_serial_driver
 
   void RadarSerialDriver::receiveData()
   {
+    std::vector<uint8_t> header(1);
+    std::vector<uint8_t> data;
+    data.reserve(sizeof(ReceivePacket));
+
+    while (rclcpp::ok())
+    {
+      serial_driver_->port()->receive(header);
+      if (header[0] == 0xA5)
+      {
+        data.resize(sizeof(ReceivePacket));
+        serial_driver_->port()->receive(data);
+
+        data.insert(data.begin(), header[0]);
+        ReceivePacket packet = fromVector(data);
+
+        uint8_t CRC8 = Get_CRC8_Check_Sum(reinterpret_cast<uint8_t *>(&packet), 4, 0xff);
+        uint16_t CRC16 = Get_CRC16_Check_Sum(reinterpret_cast<uint8_t *>(&packet), sizeof(packet) - 2, 0xffff);
+        if (CRC8 == packet.CRC8 && CRC16 == packet.CRC16)
+        {
+          RCLCPP_INFO(get_logger(), "CRC yes!");
+          RCLCPP_INFO(get_logger(), "%x %x %x %x",packet.CRC8,CRC8,packet.CRC16,CRC16);
+          //RCLCPP_INFO(get_logger(), "id : %x",packet.cmd_id);
+        }
+      }
+    }
   }
 
   void RadarSerialDriver::sendData()
   {
     SendPacket packet;
+    if (packet.seq >= 255)
+      packet.seq = 0;
+    else
+      packet.seq++;
 
     packet.CRC8 = Get_CRC8_Check_Sum(reinterpret_cast<uint8_t *>(&packet), 4, 0xff);
     packet.CRC16 = Get_CRC16_Check_Sum(reinterpret_cast<uint8_t *>(&packet), sizeof(packet) - 2, 0xffff);
