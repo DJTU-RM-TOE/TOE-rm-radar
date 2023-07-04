@@ -46,7 +46,7 @@ namespace radar_serial_driver
       throw ex;
     }
 
-    timer_ = create_wall_timer(std::chrono::seconds(1), std::bind(&RadarSerialDriver::sendData, this));
+    timer_ = create_wall_timer(std::chrono::milliseconds(100), std::bind(&RadarSerialDriver::sendData, this));
   }
 
   RadarSerialDriver::~RadarSerialDriver()
@@ -89,7 +89,7 @@ namespace radar_serial_driver
         if (CRC8 == packet.CRC8 && CRC16 == packet.CRC16)
         {
           RCLCPP_INFO(get_logger(), "CRC yes!");
-          RCLCPP_INFO(get_logger(), "%x %x %x %x",packet.CRC8,CRC8,packet.CRC16,CRC16);
+          //RCLCPP_INFO(get_logger(), "%x %x %x %x",packet.CRC8,CRC8,packet.CRC16,CRC16);
           //RCLCPP_INFO(get_logger(), "id : %x",packet.cmd_id);
         }
       }

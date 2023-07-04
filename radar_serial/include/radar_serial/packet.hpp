@@ -27,18 +27,35 @@ namespace radar_serial_driver
     uint16_t CRC16;
   } __attribute__((packed));
 
+  struct SendPacket_ui
+  {
+    uint8_t SOF =0x5A;
+    uint16_t data_length = 11;
+    uint8_t seq;
+    uint8_t CRC8;
+
+    uint16_t cmd_id;
+
+    uint8_t game_type : 4;
+    uint8_t game_progress : 4;
+    uint16_t stage_remain_time;
+    uint64_t SyncTimeStamp;
+
+    uint16_t CRC16;
+  } __attribute__((packed));
+
   struct SendPacket
   {
     uint8_t SOF = (uint8_t)0xA5;
-    uint16_t data_length = 0x000A;
+    uint16_t data_length = 10;
     uint8_t seq;
     uint8_t CRC8;
 
     uint16_t cmd_id = 0x0305U;
 
     uint16_t target_robot_ID = 0x0001U;
-    float target_position_x = 1.0;
-    float target_position_y = 1.0;
+    float target_position_x = 6.0;
+    float target_position_y = 6.0;
 
     uint16_t CRC16;
   } __attribute__((packed));
