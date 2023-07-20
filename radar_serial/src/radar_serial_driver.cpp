@@ -19,6 +19,9 @@
 #include "radar_serial/crc.hpp"
 #include "radar_serial/packet.hpp"
 
+#define COLOR_B 0
+#define COLOR_R 1
+
 namespace radar_serial_driver
 {
   RadarSerialDriver::RadarSerialDriver(const rclcpp::NodeOptions &options)
@@ -27,6 +30,9 @@ namespace radar_serial_driver
         serial_driver_{new drivers::serial_driver::SerialDriver(*owned_ctx_)}
   {
     RCLCPP_INFO(get_logger(), "Start RMSerialDriver!");
+
+    tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+    tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 
     getParams();
 
@@ -88,9 +94,9 @@ namespace radar_serial_driver
         uint16_t CRC16 = Get_CRC16_Check_Sum(reinterpret_cast<uint8_t *>(&packet), sizeof(packet) - 2, 0xffff);
         if (CRC8 == packet.CRC8 && CRC16 == packet.CRC16)
         {
-          RCLCPP_INFO(get_logger(), "CRC yes!");
-          //RCLCPP_INFO(get_logger(), "%x %x %x %x",packet.CRC8,CRC8,packet.CRC16,CRC16);
-          //RCLCPP_INFO(get_logger(), "id : %x",packet.cmd_id);
+          // RCLCPP_INFO(get_logger(), "CRC yes!");
+          //  RCLCPP_INFO(get_logger(), "%x %x %x %x",packet.CRC8,CRC8,packet.CRC16,CRC16);
+          //  RCLCPP_INFO(get_logger(), "id : %x",packet.cmd_id);
         }
       }
     }
@@ -99,6 +105,22 @@ namespace radar_serial_driver
   void RadarSerialDriver::sendData()
   {
     SendPacket packet;
+
+    if (sequence_flag >= 5)
+    {
+      sequence_flag = 0;
+    }
+    else
+      sequence_flag++;
+
+    RadarSerialDriver::listenTf();
+
+    // send Blue
+    packet.target_position_y = (float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.x + 7.5;
+    packet.target_position_x = (float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.y + 14;
+
+    RCLCPP_INFO(get_logger(), "%f %f",transformStamped_num[COLOR_B][sequence_flag].transform.translation.x + 7.5,(float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.y + 14);
+
     if (packet.seq >= 255)
       packet.seq = 0;
     else
@@ -130,6 +152,29 @@ namespace radar_serial_driver
         std::make_unique<drivers::serial_driver::SerialPortConfig>(baud_rate, fc, pt, sb);
 
     device_name_ = "/dev/ttyUSB0";
+  }
+
+  void RadarSerialDriver::listenTf()
+  {
+    try
+    {
+      transformStamped_num[COLOR_B][0] = tf_buffer_->lookupTransform("map", "RobotB1", tf2::TimePointZero);
+      transformStamped_num[COLOR_B][1] = tf_buffer_->lookupTransform("map", "RobotB2", tf2::TimePointZero);
+      transformStamped_num[COLOR_B][2] = tf_buffer_->lookupTransform("map", "RobotB3", tf2::TimePointZero);
+      transformStamped_num[COLOR_B][3] = tf_buffer_->lookupTransform("map", "RobotB4", tf2::TimePointZero);
+      transformStamped_num[COLOR_B][4] = tf_buffer_->lookupTransform("map", "RobotB5", tf2::TimePointZero);
+      transformStamped_num[COLOR_B][5] = tf_buffer_->lookupTransform("map", "RobotB6", tf2::TimePointZero);
+      transformStamped_num[COLOR_R][0] = tf_buffer_->lookupTransform("map", "RobotR1", tf2::TimePointZero);
+      transformStamped_num[COLOR_R][1] = tf_buffer_->lookupTransform("map", "RobotR2", tf2::TimePointZero);
+      transformStamped_num[COLOR_R][2] = tf_buffer_->lookupTransform("map", "RobotR3", tf2::TimePointZero);
+      transformStamped_num[COLOR_R][3] = tf_buffer_->lookupTransform("map", "RobotR4", tf2::TimePointZero);
+      transformStamped_num[COLOR_R][4] = tf_buffer_->lookupTransform("map", "RobotR5", tf2::TimePointZero);
+      transformStamped_num[COLOR_R][5] = tf_buffer_->lookupTransform("map", "RobotR6", tf2::TimePointZero);
+    }
+    catch (tf2::TransformException &ex)
+    {
+      RCLCPP_WARN(this->get_logger(), "Failed to receive transform: %s", ex.what());
+    }
   }
 
 } // namespace rm_serial_driver
