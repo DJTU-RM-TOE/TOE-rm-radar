@@ -14,12 +14,15 @@ def generate_launch_description():
     
     from common import get_camera_node,get_radar_orientation_node,get_calibration_ui_node,get_radar_cv_container
     from common import get_map_2D_node,get_radar_ui_container,get_save_node
+    from common import get_radar_identification_node
     
     hik_camera_node = get_camera_node('none_camera', 'none_camera::NoneCameraNode')
     radar_robot_detector_node = get_radar_orientation_node('radar_orientation', 'radar_orientation::OrientationNode')
     calibration_ui_node = get_calibration_ui_node('radar_ui', 'calibration_ui::calibration_ui_node')
     
     radar_cv_module = get_radar_cv_container(hik_camera_node,radar_robot_detector_node,calibration_ui_node)
+    
+    radar_identification_node = get_radar_identification_node('radar_identification', 'python_node')
 
     #######################################################################
         
@@ -38,6 +41,7 @@ def generate_launch_description():
 
     return LaunchDescription(
         [
+            radar_identification_node,
             radar_cv_module,
             radar_ui_module
         ]

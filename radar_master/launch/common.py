@@ -4,6 +4,7 @@ import yaml
 from ament_index_python.packages import get_package_share_directory, get_package_prefix
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
+from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration
 
 from launch_ros.descriptions import ComposableNode
@@ -109,4 +110,11 @@ def get_radar_ui_container(ui_node,save_node):
         ros_arguments=['--ros-args', '--log-level',
                        'map_2D_node:=' + launch_params['detector_log_level']
         ],
+    )
+
+def get_radar_identification_node(package, executable):
+    return Node(
+        package=package,  # 替换为你的包名
+        executable=executable,  # 替换为你的可执行文件名
+        name='python_node',
     )
