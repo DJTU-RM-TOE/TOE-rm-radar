@@ -3,14 +3,14 @@ import pycuda.autoinit
 import pycuda.driver as cuda
 import numpy as np
 import cv2
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt 
 
 class BaseEngine(object):
     def __init__(self, engine_path):
         self.mean = None
         self.std = None
         self.n_classes = 3
-        self.class_names = [ 'person', 'bicycle', 'car']
+        self.class_names = [ 'blue', 'red', 'unkown']
 
         logger = trt.Logger(trt.Logger.WARNING)
         logger.min_severity = trt.Logger.Severity.ERROR
@@ -93,8 +93,7 @@ class BaseEngine(object):
         cap.release()
         cv2.destroyAllWindows()
 
-    def inference(self, img_path, conf=0.5, end2end=False):
-        origin_img = cv2.imread(img_path)
+    def inference(self, origin_img, conf=0.5, end2end=False):
         img, ratio = preproc(origin_img, self.imgsz, self.mean, self.std)
         data = self.infer(img)
         if end2end:
@@ -106,12 +105,13 @@ class BaseEngine(object):
             dets = self.postprocess(predictions,ratio)
 
         if dets is not None:
-            final_boxes, final_scores, final_cls_inds = dets[:,
+            out_final_boxes, out_final_scores, out_final_cls_inds = dets[:,
                                                              :4], dets[:, 4], dets[:, 5]
-            origin_img = vis(origin_img, final_boxes, final_scores, final_cls_inds,
+            origin_img = vis(origin_img, out_final_boxes, out_final_scores, out_final_cls_inds,
                              conf=conf, class_names=self.class_names)
-        return origin_img
+        return origin_img,out_final_boxes, out_final_scores, out_final_cls_inds
 
+    ###
     @staticmethod
     def postprocess(predictions, ratio):
         boxes = predictions[:, :4]
