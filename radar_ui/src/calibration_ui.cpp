@@ -27,7 +27,7 @@ namespace calibration_ui
 
       RCLCPP_INFO(this->get_logger(), "开始运行");
       subscription_ = create_subscription<sensor_msgs::msg::Image>(
-          "image_raw", 10, std::bind(&calibration_ui_node::videoCallback, this, std::placeholders::_1));
+          "identification_image"/*"image_raw"*/, 10, std::bind(&calibration_ui_node::videoCallback, this, std::placeholders::_1));
 
       subscription_calibrationui_ = create_subscription<radar_interfaces::msg::CalibrationUi>(
           "calibration", 10, std::bind(&calibration_ui_node::CalibrationCallback, this, std::placeholders::_1));

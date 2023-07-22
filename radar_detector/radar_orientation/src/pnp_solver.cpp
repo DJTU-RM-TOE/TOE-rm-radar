@@ -46,6 +46,7 @@ namespace radar_orientation
         for (int i = 0; i < region_num; i++)
         {
             region_pointnum += region_list[i];
+            region_list_num[i] = region_list[i];
         }
 
         for (int i = 0; i < region_pointnum; i++)
@@ -55,5 +56,7 @@ namespace radar_orientation
                 region_param[i][j] = region[i * 3 + j];
             }
         }
+
+        
     }
 }

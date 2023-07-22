@@ -1,42 +1,3 @@
-'''
-import rclpy
-from rclpy.node import Node
-
-from .utils.utils import preproc, vis
-from .utils.utils import BaseEngine
-import numpy as np
-import cv2
-import time
-import os
-import argparse
-
-
-
-        
-class HelloWorldComponent(Node):
-    def __init__(self):
-        super().__init__('hello_world_component')
-
-        pred = Predictor(engine_path="/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_detector/radar_identification/radar_identification/model/yolov8n.trt")
-        pred.get_fps()
-        video = "/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_detector/radar_identification/radar_identification/vidio/real.avi"
-
-        pred.detect_video(video, conf=0.1, end2end=True) # set 0 use a webcam
-
-def main(args=None):
-    rclpy.init(args=args)
-
-    hello_world_component = HelloWorldComponent()
-
-    rclpy.spin(hello_world_component)
-
-    hello_world_component.destroy_node()
-    rclpy.shutdown()
-
-if __name__ == '__main__':
-    main()
-'''
-
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
@@ -50,9 +11,15 @@ import time
 import os
 import argparse
 
+from radar_interfaces.msg import RobotFlag
+
 final_boxes = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
 final_scores = [0,0,0,0,0,0,0,0,0,0,0,0]
 final_cls_inds = [0,0,0,0,0,0,0,0,0,0,0,0]
+
+robot_x = [0,0,0,0,0,0,0,0,0,0,0,0]
+robot_y = [0,0,0,0,0,0,0,0,0,0,0,0]
+robot_id = [0,0,0,0,0,0,0,0,0,0,0,0]
 
 class Predictor(BaseEngine):
     def __init__(self, engine_path):
@@ -73,6 +40,10 @@ class RadarIdentificationSubscriber(Node):
             10
         )
         self.cv_bridge = CvBridge()
+        
+        self.publisher_ = self.create_publisher(RobotFlag, 'camera1', 10)
+        
+        self.publisher_img = self.create_publisher(Image, 'identification_image', 10)
 
     def callback(self, msg):
         
@@ -85,29 +56,31 @@ class RadarIdentificationSubscriber(Node):
         color = (0, 255, 0)
         thickness = -1
         radius = 5
-            
-        if len(final_boxes) > 0:
-            x_0 = (final_boxes[0][0]+final_boxes[0][2])/2
-            y_0 = (final_boxes[0][1]+final_boxes[0][3])/2
-            center = (int(x_0), int(y_0))
-
-            cv2.circle(origin_img, center, radius, color, thickness)
-            
-        if len(final_boxes) > 1:
-            x_1 = (final_boxes[1][0]+final_boxes[1][2])/2
-            y_1 = (final_boxes[1][1]+final_boxes[1][3])/2
-            center = (int(x_1), int(y_1))
-            cv2.circle(origin_img, center, radius, color, thickness)
         
-        if len(final_boxes) > 2:
-            x_2 = (final_boxes[2][0]+final_boxes[2][2])/2
-            y_2 = (final_boxes[2][1]+final_boxes[2][3])/2
-            center = (int(x_2), int(y_2))
-            cv2.circle(origin_img, center, radius, color, thickness)
+        for i in range(12):
+            robot_x[i] = 0
+            robot_y[i] = 0
+            robot_id[i] = 0
+            if len(final_boxes) > i:
+                robot_x[i] = int((final_boxes[i][0]+final_boxes[i][2])/2)
+                robot_y[i] = int((final_boxes[i][1]+final_boxes[i][3])/2)
+                robot_id[i] = final_cls_inds[i] + 1
+                center = (robot_x[i], robot_y[i])
+    
+                cv2.circle(origin_img, center, radius, color, thickness)
+            
+        msg = RobotFlag()
+        for i in range(12):
+            msg.robot_2d[2*i] = robot_x[i]
+            msg.robot_2d[2*i+1] = robot_y[i]
+            msg.robot_id[i] = robot_id[i]
+        self.publisher_.publish(msg)
         
         # 在OpenCV图像上进行处理
         # 例如，显示图像
-        cv2.imshow('Video', origin_img)
+        img_msg = self.cv_bridge.cv2_to_imgmsg(origin_img, encoding="bgr8")
+        self.publisher_img.publish(img_msg)
+        #cv2.imshow('Video', origin_img)
         
         cv2.waitKey(1)
 

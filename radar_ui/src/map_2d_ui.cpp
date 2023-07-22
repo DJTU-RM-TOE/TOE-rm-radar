@@ -57,6 +57,7 @@ namespace map_2d_ui
                                              {
                                                 while(radar_status == 1)
                                                 {
+
                                                     img_msg_->header.stamp = this->now(); // 更新时间戳
 
                                                     // 监听
@@ -103,7 +104,7 @@ namespace map_2d_ui
                 {
                     for (int j = 0; j < 6; j++)
                     {
-                        Robot_point[i][j] = cv::Point(width / 2 + transformStamped_num[i][j].transform.translation.x * MAP_CONSTANT, height / 2 + transformStamped_num[i][j].transform.translation.y * MAP_CONSTANT);
+                        Robot_point[i][j] = cv::Point(width / 2 + transformStamped_num[i][j].transform.translation.y * MAP_CONSTANT, height / 2 + transformStamped_num[i][j].transform.translation.x * MAP_CONSTANT);
                     }
                 }
             }

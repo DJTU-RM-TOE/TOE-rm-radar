@@ -38,9 +38,12 @@ namespace radar_orientation
     double tvecArray[3];
 
     void detector_data();
-    void send_tf();
+    void send_tf(const radar_interfaces::msg::RobotFlag::SharedPtr msg);
+    bool pointInPolygon(cv::Point2f point, const std::vector<cv::Point2f>& polygon);
 
     rclcpp::Subscription<radar_interfaces::msg::Keyboard>::SharedPtr subscription_keyboard_;
+
+    rclcpp::Subscription<radar_interfaces::msg::RobotFlag>::SharedPtr subscription_robotflag_;
 
     // 状态机发布
     rclcpp::Publisher<radar_interfaces::msg::Status>::SharedPtr publisher_status_;
@@ -62,7 +65,14 @@ namespace radar_orientation
     geometry_msgs::msg::TransformStamped transformStamped_r5;
     geometry_msgs::msg::TransformStamped transformStamped_r6;
 
+    geometry_msgs::msg::TransformStamped tf_camera_r;
+    geometry_msgs::msg::TransformStamped tf_camera;
+
     rclcpp::TimerBase::SharedPtr timer_;
+
+    //
+    int warn_flag[4];
+    //
   };
 }
 

@@ -39,10 +39,11 @@ namespace radar_orientation
 
         // 平移向量
         cv::Mat tvec;
-
+        
         rclcpp::Publisher<radar_interfaces::msg::CalibrationTf>::SharedPtr publisher_calibrationtf_;
         radar_interfaces::msg::CalibrationTf calibrationtf_message_;
-
+        
+        int region_list_num[16] = {};
         int region_pointnum = 0;
         int region_num = 0;
     };

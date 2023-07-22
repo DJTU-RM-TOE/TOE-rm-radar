@@ -61,7 +61,7 @@ namespace save_data
         {
 
             // 写入完成
-            cv::FileStorage tempFile("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_master/config/ui.yaml", cv::FileStorage::WRITE);
+            cv::FileStorage tempFile("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_master/config/ui_.yaml", cv::FileStorage::WRITE);
 
             int lineCount = 0;
 
@@ -77,8 +77,8 @@ namespace save_data
 
             tempFile.release();
 
-            std::ofstream outputFile("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_master/config/ui_.yaml");
-            std::ifstream tempFile_("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_master/config/ui.yaml");
+            std::ofstream outputFile("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_master/config/ui.yaml");
+            std::ifstream tempFile_("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_master/config/ui_.yaml");
 
             std::string line;
             while (std::getline(tempFile_, line))
@@ -92,8 +92,7 @@ namespace save_data
             outputFile.close();
             tempFile_.close();
 
-            std::remove("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_master/config/ui.yaml");
-            std::rename("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_master/config/ui_.yaml", "/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_master/config/ui.yaml"); // 重命名为input.yaml
+            RCLCPP_INFO(this->get_logger(), "success!");
         }
 
         void topic_callback(const radar_interfaces::msg::Status::SharedPtr msg)
