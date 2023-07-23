@@ -13,13 +13,6 @@ import argparse
 
 from radar_interfaces.msg import RobotFlag
 
-final_boxes = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
-final_scores = [0,0,0,0,0,0,0,0,0,0,0,0]
-final_cls_inds = [0,0,0,0,0,0,0,0,0,0,0,0]
-
-robot_x = [0,0,0,0,0,0,0,0,0,0,0,0]
-robot_y = [0,0,0,0,0,0,0,0,0,0,0,0]
-robot_id = [0,0,0,0,0,0,0,0,0,0,0,0]
 
 class Predictor(BaseEngine):
     def __init__(self, engine_path):
@@ -46,6 +39,14 @@ class RadarIdentificationSubscriber(Node):
         self.publisher_img = self.create_publisher(Image, 'identification_image', 10)
 
     def callback(self, msg):
+        
+        final_boxes = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+        final_scores = [0,0,0,0,0,0,0,0,0,0,0,0]
+        final_cls_inds = [0,0,0,0,0,0,0,0,0,0,0,0]
+
+        robot_x = [0,0,0,0,0,0,0,0,0,0,0,0]
+        robot_y = [0,0,0,0,0,0,0,0,0,0,0,0]
+        robot_id = [0,0,0,0,0,0,0,0,0,0,0,0]
         
         # 将ROS图像消息转换为OpenCV图像
         cv_image = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')

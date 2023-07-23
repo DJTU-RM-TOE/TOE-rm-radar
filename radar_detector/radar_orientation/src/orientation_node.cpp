@@ -43,73 +43,73 @@ namespace radar_orientation
   {
     transformStamped_b1.header.frame_id = "map";
     transformStamped_b1.child_frame_id = "RobotB1";
-    transformStamped_b1.transform.translation.x = -1.0;
-    transformStamped_b1.transform.translation.y = -6.0;
+    transformStamped_b1.transform.translation.x = 15.5; // 15
+    transformStamped_b1.transform.translation.y = -6.0;  // 8
     transformStamped_b1.transform.translation.z = 0.0;
 
     transformStamped_b2.header.frame_id = "map";
     transformStamped_b2.child_frame_id = "RobotB2";
-    transformStamped_b2.transform.translation.x = 0.0;
+    transformStamped_b2.transform.translation.x = 15.5;
     transformStamped_b2.transform.translation.y = -5.0;
     transformStamped_b2.transform.translation.z = 0.0;
 
     transformStamped_b3.header.frame_id = "map";
     transformStamped_b3.child_frame_id = "RobotB3";
-    transformStamped_b3.transform.translation.x = 0.0;
+    transformStamped_b3.transform.translation.x = 15.5;
     transformStamped_b3.transform.translation.y = -4.0;
     transformStamped_b3.transform.translation.z = 0.0;
 
     transformStamped_b4.header.frame_id = "map";
     transformStamped_b4.child_frame_id = "RobotB4";
-    transformStamped_b4.transform.translation.x = 0.0;
+    transformStamped_b4.transform.translation.x = 15.5;
     transformStamped_b4.transform.translation.y = -3.0;
     transformStamped_b4.transform.translation.z = 0.0;
 
     transformStamped_b5.header.frame_id = "map";
     transformStamped_b5.child_frame_id = "RobotB5";
-    transformStamped_b5.transform.translation.x = 0.0;
+    transformStamped_b5.transform.translation.x = 15.5;
     transformStamped_b5.transform.translation.y = -2.0;
     transformStamped_b5.transform.translation.z = 0.0;
 
     transformStamped_b6.header.frame_id = "map";
     transformStamped_b6.child_frame_id = "RobotB6";
-    transformStamped_b6.transform.translation.x = 0.0;
+    transformStamped_b6.transform.translation.x = 15.5;
     transformStamped_b6.transform.translation.y = -1.0;
     transformStamped_b6.transform.translation.z = 0.0;
 
     transformStamped_r1.header.frame_id = "map";
     transformStamped_r1.child_frame_id = "RobotR1";
-    transformStamped_r1.transform.translation.x = 0.0;
+    transformStamped_r1.transform.translation.x = 15.5;
     transformStamped_r1.transform.translation.y = 1.0;
     transformStamped_r1.transform.translation.z = 0.0;
 
     transformStamped_r2.header.frame_id = "map";
     transformStamped_r2.child_frame_id = "RobotR2";
-    transformStamped_r2.transform.translation.x = 0.0;
+    transformStamped_r2.transform.translation.x = 15.5;
     transformStamped_r2.transform.translation.y = 2.0;
     transformStamped_r2.transform.translation.z = 0.0;
 
     transformStamped_r3.header.frame_id = "map";
     transformStamped_r3.child_frame_id = "RobotR3";
-    transformStamped_r3.transform.translation.x = 0.0;
+    transformStamped_r3.transform.translation.x = 15.5;
     transformStamped_r3.transform.translation.y = 3.0;
     transformStamped_r3.transform.translation.z = 0.0;
 
     transformStamped_r4.header.frame_id = "map";
     transformStamped_r4.child_frame_id = "RobotR4";
-    transformStamped_r4.transform.translation.x = 0.0;
+    transformStamped_r4.transform.translation.x = 15.5;
     transformStamped_r4.transform.translation.y = 4.0;
     transformStamped_r4.transform.translation.z = 0.0;
 
     transformStamped_r5.header.frame_id = "map";
     transformStamped_r5.child_frame_id = "RobotR5";
-    transformStamped_r5.transform.translation.x = 0.0;
+    transformStamped_r5.transform.translation.x = 15.5;
     transformStamped_r5.transform.translation.y = 5.0;
     transformStamped_r5.transform.translation.z = 0.0;
 
     transformStamped_r6.header.frame_id = "map";
     transformStamped_r6.child_frame_id = "RobotR6";
-    transformStamped_r6.transform.translation.x = 0.0;
+    transformStamped_r6.transform.translation.x = 15.5;
     transformStamped_r6.transform.translation.y = 6.0;
     transformStamped_r6.transform.translation.z = 0.0;
   }
@@ -240,7 +240,7 @@ namespace radar_orientation
 
     if (status_flag == 1)
     {
-      //基于2d图像的警戒方案
+      // 基于2d图像的警戒方案
       for (int i = 0; i < pnp_solver_module.region_num; i++)
       {
         warn_flag[i] = 0;
@@ -258,20 +258,30 @@ namespace radar_orientation
           firstPoints.resize(pnp_solver_module.region_list_num[j]);
 
           std::copy(pnp_solver_module.Points2d.begin() + add, pnp_solver_module.Points2d.begin() + add + pnp_solver_module.region_list_num[j], firstPoints.begin());
-          //RCLCPP_INFO(this->get_logger(), "参数 %d %d ", add, pnp_solver_module.region_list_num[j]);
+          // RCLCPP_INFO(this->get_logger(), "参数 %d %d ", add, pnp_solver_module.region_list_num[j]);
           add += pnp_solver_module.region_list_num[j];
-          //RCLCPP_INFO(this->get_logger(), "框位 %d %d %d %d %d %d %d %d", (int)firstPoints[0].x, (int)firstPoints[0].y, (int)firstPoints[1].x, (int)firstPoints[1].y, (int)firstPoints[2].x, (int)firstPoints[2].y, (int)firstPoints[3].x, (int)firstPoints[3].y);
-          //RCLCPP_INFO(this->get_logger(), "点位 %d %d ", msg->robot_2d[2 * i], msg->robot_2d[2 * i + 1]);
-          if (pointInPolygon(point, firstPoints))
+          // RCLCPP_INFO(this->get_logger(), "框位 %d %d %d %d %d %d %d %d", (int)firstPoints[0].x, (int)firstPoints[0].y, (int)firstPoints[1].x, (int)firstPoints[1].y, (int)firstPoints[2].x, (int)firstPoints[2].y, (int)firstPoints[3].x, (int)firstPoints[3].y);
+          // RCLCPP_INFO(this->get_logger(), "点位 %d %d ", msg->robot_2d[2 * i], msg->robot_2d[2 * i + 1]);
+          if (pointInPolygon(point, firstPoints) && msg->robot_id[i] == 1) // 1 blue 2 red 3 uk
           {
-            RCLCPP_INFO(this->get_logger(), "进入警戒");
+            //RCLCPP_INFO(this->get_logger(), "进入警戒");
             warn_flag[j]++;
           }
         }
       }
 
       RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d", warn_flag[0], warn_flag[1], warn_flag[2], warn_flag[3]);
-      
+
+      if (warn_flag[2] > 0)
+      {
+        transformStamped_b1.transform.translation.x = 3.0;  // 15
+        transformStamped_b1.transform.translation.y = -7.0; // 8
+        if (warn_flag[2] > 1)
+        {
+          transformStamped_b2.transform.translation.x = 2.0; // 15
+          transformStamped_b2.transform.translation.y = -7.0;  // 8
+        }
+      }
 
       transformStamped_b1.header.stamp = now();
       transformStamped_b2.header.stamp = now();

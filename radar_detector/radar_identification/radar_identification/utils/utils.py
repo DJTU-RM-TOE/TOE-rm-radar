@@ -107,6 +107,32 @@ class BaseEngine(object):
         if dets is not None:
             out_final_boxes, out_final_scores, out_final_cls_inds = dets[:,
                                                              :4], dets[:, 4], dets[:, 5]
+            j = 0
+            for i in out_final_cls_inds:
+                if(i == 2):
+                    roi = origin_img[int(out_final_boxes[j][1]):int(out_final_boxes[j][3]), int(out_final_boxes[j][0]):int(out_final_boxes[j][2])]
+                    ## 定义红色和蓝色的HSV范围
+                    red_lower = np.array([0, 100, 100])
+                    red_upper = np.array([10, 255, 255])
+                    blue_lower = np.array([110, 100, 100])
+                    blue_upper = np.array([130, 255, 255])
+                    ## 将图像转换为HSV颜色空间
+                    hsv = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+                    ## 根据颜色范围创建掩膜
+                    red_mask = cv2.inRange(hsv, red_lower, red_upper)
+                    blue_mask = cv2.inRange(hsv, blue_lower, blue_upper)
+                    ## 计算红色和蓝色像素数量
+                    red_pixels = cv2.countNonZero(red_mask)
+                    blue_pixels = cv2.countNonZero(blue_mask)
+                    ## 判断红色和蓝色像素数量的多少
+                    if red_pixels > blue_pixels:
+                        out_final_cls_inds[j] =  1
+                    elif red_pixels < blue_pixels:
+                        out_final_cls_inds[j] =  0
+                    else:
+                        out_final_cls_inds[j] =  2        
+                j = j + 1
+            #可视化
             origin_img = vis(origin_img, out_final_boxes, out_final_scores, out_final_cls_inds,
                              conf=conf, class_names=self.class_names)
         return origin_img,out_final_boxes, out_final_scores, out_final_cls_inds
@@ -230,7 +256,7 @@ def rainbow_fill(size=50):  # simpler way to generate rainbow color
     return np.array(color_list)
 
 
-_COLORS = rainbow_fill(80).astype(np.float32).reshape(-1, 3)
+_COLORS = rainbow_fill(3).astype(np.float32).reshape(-1, 3)
 
 
 def vis(img, boxes, scores, cls_ids, conf=0.5, class_names=None):

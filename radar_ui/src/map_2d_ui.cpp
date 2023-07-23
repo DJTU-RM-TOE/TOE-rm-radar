@@ -33,12 +33,10 @@ namespace map_2d_ui
             tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 
             // 读取图像
-            Primitive_map = cv::imread("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_ui/image/map_2D.jpg", cv::IMREAD_COLOR);
+            image = cv::imread("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_ui/image/map_2D.jpg", cv::IMREAD_COLOR);
 
-            image = Primitive_map;
-
-            width = Primitive_map.cols;
-            height = Primitive_map.rows;
+            width = image.cols;
+            height = image.rows;
 
             // 创建图像消息
             img_msg_ = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image).toImageMsg();
@@ -61,16 +59,18 @@ namespace map_2d_ui
                                                     img_msg_->header.stamp = this->now(); // 更新时间戳
 
                                                     // 监听
+                                                    image = cv::imread("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_ui/image/map_2D.jpg", cv::IMREAD_COLOR);
+
                                                     Map2dUiNode::listenTf();
-                                                    image = Primitive_map;
 
                                                     for (int j = 0; j < 6; j++)
                                                     {
                                                         cv::circle(image, Robot_point[COLOR_B][j], 60, cv::Scalar(255, 0, 0), -1);
                                                         cv::circle(image, Robot_point[COLOR_R][j], 60, cv::Scalar(0, 0, 255), -1);
-                                                        putText(image, std::to_string(j), Robot_point[COLOR_B][j] + cv::Point(-30, 30), cv::FONT_HERSHEY_SIMPLEX, 3, cv::Scalar(255, 255, 255), 10);
-                                                        putText(image, std::to_string(j), Robot_point[COLOR_R][j] + cv::Point(-30, 30), cv::FONT_HERSHEY_SIMPLEX, 3, cv::Scalar(255, 255, 255), 10);
+                                                        putText(image, std::to_string(j+1), Robot_point[COLOR_B][j] + cv::Point(-30, 30), cv::FONT_HERSHEY_SIMPLEX, 3, cv::Scalar(255, 255, 255), 10);
+                                                        putText(image, std::to_string(j+1), Robot_point[COLOR_R][j] + cv::Point(-30, 30), cv::FONT_HERSHEY_SIMPLEX, 3, cv::Scalar(255, 255, 255), 10);
                                                     }
+                                                    //RCLCPP_INFO(this->get_logger(), "xy: %d %d", Robot_point[COLOR_B][0].x,Robot_point[COLOR_B][0].y);
 
                                                     cv::Size size(image.cols * SCALE_PERCENT, image.rows * SCALE_PERCENT);
                                                     cv::resize(image, map, size, 0, 0, cv::INTER_AREA);
@@ -85,8 +85,10 @@ namespace map_2d_ui
     private:
         void listenTf()
         {
+
             try
             {
+
                 transformStamped_num[COLOR_B][0] = tf_buffer_->lookupTransform("map", "RobotB1", tf2::TimePointZero);
                 transformStamped_num[COLOR_B][1] = tf_buffer_->lookupTransform("map", "RobotB2", tf2::TimePointZero);
                 transformStamped_num[COLOR_B][2] = tf_buffer_->lookupTransform("map", "RobotB3", tf2::TimePointZero);
