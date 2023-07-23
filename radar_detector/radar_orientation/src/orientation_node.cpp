@@ -257,11 +257,11 @@ namespace radar_orientation
           std::vector<cv::Point2f> firstPoints;
           firstPoints.resize(pnp_solver_module.region_list_num[j]);
 
-          std::copy(pnp_solver_module.Points2d.begin() + add, pnp_solver_module.Points2d.begin() + pnp_solver_module.region_list_num[j], firstPoints.begin());
+          std::copy(pnp_solver_module.Points2d.begin() + add, pnp_solver_module.Points2d.begin() + add + pnp_solver_module.region_list_num[j], firstPoints.begin());
+          //RCLCPP_INFO(this->get_logger(), "参数 %d %d ", add, pnp_solver_module.region_list_num[j]);
           add += pnp_solver_module.region_list_num[j];
-          RCLCPP_INFO(this->get_logger(), "参数 %d %d ", add, pnp_solver_module.region_list_num[j]);
-          RCLCPP_INFO(this->get_logger(), "框位 %d", j);
-          RCLCPP_INFO(this->get_logger(), "点位 %d %d ", msg->robot_2d[2 * i], msg->robot_2d[2 * i + 1]);
+          //RCLCPP_INFO(this->get_logger(), "框位 %d %d %d %d %d %d %d %d", (int)firstPoints[0].x, (int)firstPoints[0].y, (int)firstPoints[1].x, (int)firstPoints[1].y, (int)firstPoints[2].x, (int)firstPoints[2].y, (int)firstPoints[3].x, (int)firstPoints[3].y);
+          //RCLCPP_INFO(this->get_logger(), "点位 %d %d ", msg->robot_2d[2 * i], msg->robot_2d[2 * i + 1]);
           if (pointInPolygon(point, firstPoints))
           {
             RCLCPP_INFO(this->get_logger(), "进入警戒");
@@ -269,18 +269,9 @@ namespace radar_orientation
           }
         }
       }
+
       RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d", warn_flag[0], warn_flag[1], warn_flag[2], warn_flag[3]);
-
-      /*
-      std::vector<cv::Point2f> polygon;
-      polygon.push_back(cv::Point2f(50, 50));
-      polygon.push_back(cv::Point2f(100, 50));
-      polygon.push_back(cv::Point2f(100, 100));
-      polygon.push_back(cv::Point2f(50, 100));
-
-      cv::Point2f point(75, 75);
-      RCLCPP_INFO(this->get_logger(), "是否在框内 %d", pointInPolygon(point, polygon));
-      */
+      
 
       transformStamped_b1.header.stamp = now();
       transformStamped_b2.header.stamp = now();
