@@ -28,25 +28,26 @@ class RadarIdentificationSubscriber(Node):
         super().__init__('radar_identification')
         self.subscription = self.create_subscription(
             Image,
-            'image_raw',
+            self.declare_parameter('recive_image', 'image_raw').value,
             self.callback,
             10
         )
+        
         self.cv_bridge = CvBridge()
         
-        self.publisher_ = self.create_publisher(RobotFlag, 'camera1', 10)
+        self.publisher_ = self.create_publisher(RobotFlag, self.declare_parameter('pub_flag', 'camera_flag').value, 10)
         
-        self.publisher_img = self.create_publisher(Image, 'identification_image', 10)
+        self.publisher_img = self.create_publisher(Image, self.declare_parameter('pub_image', 'identification_camera').value, 10)
 
     def callback(self, msg):
         
-        final_boxes = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
-        final_scores = [0,0,0,0,0,0,0,0,0,0,0,0]
-        final_cls_inds = [0,0,0,0,0,0,0,0,0,0,0,0]
+        final_boxes = [[0]*4 for _ in range(12)]
+        final_scores = [0] * 12
+        final_cls_inds = [0] * 12
 
-        robot_x = [0,0,0,0,0,0,0,0,0,0,0,0]
-        robot_y = [0,0,0,0,0,0,0,0,0,0,0,0]
-        robot_id = [0,0,0,0,0,0,0,0,0,0,0,0]
+        robot_x = [0] * 12
+        robot_y = [0] * 12
+        robot_id = [0] * 12
         
         # 将ROS图像消息转换为OpenCV图像
         cv_image = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
@@ -77,11 +78,8 @@ class RadarIdentificationSubscriber(Node):
             msg.robot_id[i] = robot_id[i]
         self.publisher_.publish(msg)
         
-        # 在OpenCV图像上进行处理
-        # 例如，显示图像
         img_msg = self.cv_bridge.cv2_to_imgmsg(origin_img, encoding="bgr8")
         self.publisher_img.publish(img_msg)
-        #cv2.imshow('Video', origin_img)
         
         cv2.waitKey(1)
 

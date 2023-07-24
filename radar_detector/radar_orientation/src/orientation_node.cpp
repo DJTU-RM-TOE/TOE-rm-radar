@@ -270,7 +270,7 @@ namespace radar_orientation
         }
       }
 
-      RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d", warn_flag[0], warn_flag[1], warn_flag[2], warn_flag[3]);
+      //RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d", warn_flag[0], warn_flag[1], warn_flag[2], warn_flag[3]);
 
       if (warn_flag[2] > 0)
       {

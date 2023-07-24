@@ -1,15 +1,50 @@
-/camera_node:
+/global_parameter:
   ros__parameters:
-    camera_name: narrow_stereo
-    camera_info_url: package://radar_master/config/camera_info.yaml
-    frame_id: "camera_optical_frame"
+    model: 0 
+    state: 0
+    color: 0
+
+/camera_1_node:
+  ros__parameters:
+    camera_name: camera_1
+    camera_info_url: package://radar_master/config/camera_info_1.yaml
+    topic_name: "image_raw_1"
+    frame_id: "camera_1_frame"
     use_sensor_data_qos: false
 
-    exposure_time: 15000
-    gain: 0.0
+    exposure_time: 30000
+    gain: 3.0
 
     offset_x: 0
     offset_y: 0
+
+/camera_2_node:
+  ros__parameters:
+    camera_name: camera_2
+    camera_info_url: package://radar_master/config/camera_info_2.yaml
+    topic_name: "image_raw_2"
+    frame_id: "camera_2_frame"
+    use_sensor_data_qos: false
+
+    exposure_time: 30000
+    gain: 3.0
+
+    offset_x: 0
+    offset_y: 0
+
+/radar_identification_node_1:
+  ros__parameters:
+    recive_image: "image_raw_1"
+    pub_flag: "camera1_flag"
+    pub_image: "identification_camera_1"
+
+
+/radar_identification_node_2:
+  ros__parameters:
+    recive_image: "image_raw_2"
+    pub_flag: "camera2_flag"
+    pub_image: "identification_camera_2"
+
 
 /orientation_node:
   ros__parameters:
@@ -25,26 +60,6 @@
     
     region_num: 4
     region_list: [4,4,4,7]
-    
-    #region: [ 7487, 7500,  200,
-    #          2803, 7500,  200,
-    #          2803, 6360,  200,
-    #          7487, 6360,  200,
-    #          6280, 6210,  850,
-    #          4712, 6210,  850,
-    #          4712, 4960,  850,
-    #          6280, 4960,  850,
-    #          820  , 7500,  199,
-    #          -4700, 7500,  199,
-    #          -4700, 6360,  199,
-    #          820  , 6360,  199,
-    #          -1987,  4195,   600,
-    #          -3052,  4941,   600,
-    #          -5045,  2095,   600,
-    #          -5045,  -795,   600,
-    #          -4810, -1131,   600,
-    #          -3745,  -385,   600,
-    #          -3745,  1685,   600]
 
     region: [ 7487, 7500,  400,
               2803, 7500,  400,
