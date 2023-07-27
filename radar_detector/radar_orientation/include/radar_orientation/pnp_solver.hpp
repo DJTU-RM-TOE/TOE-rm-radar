@@ -5,7 +5,9 @@
 
 namespace radar_orientation
 {
+    extern int calibration_point[8][2];
     extern int status_flag;
+    extern int point_select;
     class pnp_solver
     {
     public:

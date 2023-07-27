@@ -13,12 +13,14 @@
 
 namespace radar_orientation
 {
+    extern int calibration_point[8][2];
+    extern int point_select;
     extern int status_flag;
     class calibration
     {
     public:
-        int point[4][2] = {0};
         // 标定框点选取
+        int point[4][2] = {0};
         int point_select = 0;
 
         // 标定框默认参数
@@ -26,9 +28,10 @@ namespace radar_orientation
 
         // 载入默认参数
         void get_calibration_argument(std::vector<int64_t> param);
+        void CalibrationUipub();
 
         // 键盘回调函数 同时发布标定框参数
-        void keyboardCallback(const radar_interfaces::msg::Keyboard::SharedPtr msg);
+        
         // 发布标定框
         rclcpp::Publisher<radar_interfaces::msg::CalibrationUi>::SharedPtr publisher_calibrationui_;
 

@@ -14,7 +14,8 @@ namespace radar_orientation
 {
   // 全局状态标志
   int status_flag = 0;
-
+  int calibration_point[8][2] = {0};
+  int point_select = 0;
   // 主节点类
   class OrientationNode : public rclcpp::Node
   {
@@ -23,8 +24,7 @@ namespace radar_orientation
 
   private:
     // 标定类
-    calibration calibration_module1;
-    calibration calibration_module2;
+    calibration calibration_module[2];
     // pnp
     pnp_solver pnp_solver_module1;
     pnp_solver pnp_solver_module2;
@@ -33,15 +33,17 @@ namespace radar_orientation
     void parmaCallback();
     void callbackGlobalParam(std::shared_future<std::vector<rclcpp::Parameter>> future);
 
+    //键盘接收回调
+    rclcpp::Subscription<radar_interfaces::msg::Keyboard>::SharedPtr subscription_keyboard_;
+    void keyboardCallback(const radar_interfaces::msg::Keyboard::SharedPtr msg);
+    int speed = 1;
+    
     double rvecArray[3];
     double tvecArray[3];
 
     void detector_data();
     void send_tf(const radar_interfaces::msg::RobotFlag::SharedPtr msg);
     bool pointInPolygon(cv::Point2f point, const std::vector<cv::Point2f> &polygon);
-
-    rclcpp::Subscription<radar_interfaces::msg::Keyboard>::SharedPtr subscription_keyboard_1_;
-    rclcpp::Subscription<radar_interfaces::msg::Keyboard>::SharedPtr subscription_keyboard_2_;
 
     rclcpp::Subscription<radar_interfaces::msg::RobotFlag>::SharedPtr subscription_robotflag_;
 

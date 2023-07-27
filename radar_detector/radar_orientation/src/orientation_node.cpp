@@ -32,30 +32,25 @@ namespace radar_orientation
 
     // 载入参数
     RCLCPP_INFO(this->get_logger(), "载入参数");
-    calibration_module1.get_calibration_argument(this->declare_parameter<std::vector<int64_t>>("base1", calibration_module1.acquiesce));
-    calibration_module2.get_calibration_argument(this->declare_parameter<std::vector<int64_t>>("base2", calibration_module2.acquiesce));
+    calibration_module[0].get_calibration_argument(this->declare_parameter<std::vector<int64_t>>("base1", calibration_module[0].acquiesce));
+    calibration_module[1].get_calibration_argument(this->declare_parameter<std::vector<int64_t>>("base2", calibration_module[1].acquiesce));
 
     auto base_3d = this->declare_parameter<std::vector<int64_t>>("base_3d");
-    auto region_num  = this->declare_parameter<int32_t>("region_num");
-    auto region_list  = this->declare_parameter<std::vector<int64_t>>("region_list");
-    auto region  = this->declare_parameter<std::vector<int64_t>>("region");
-
-    // 参数载入
-    pnp_solver_module1.get_pnp_argument(base_3d,region_num,region_list,region);
-
-    pnp_solver_module2.get_pnp_argument(base_3d,region_num,region_list,region);
+    auto region_num = this->declare_parameter<int32_t>("region_num");
+    auto region_list = this->declare_parameter<std::vector<int64_t>>("region_list");
+    auto region = this->declare_parameter<std::vector<int64_t>>("region");
+    pnp_solver_module1.get_pnp_argument(base_3d, region_num, region_list, region);
+    pnp_solver_module2.get_pnp_argument(base_3d, region_num, region_list, region);
 
     // 标定部分
     RCLCPP_INFO(this->get_logger(), "创建按键接收");
-    subscription_keyboard_1_ = create_subscription<radar_interfaces::msg::Keyboard>(
-        "keyboard", 10, std::bind(&calibration::keyboardCallback, &calibration_module1, std::placeholders::_1));
-    subscription_keyboard_2_ = create_subscription<radar_interfaces::msg::Keyboard>(
-        "keyboard", 10, std::bind(&calibration::keyboardCallback, &calibration_module2, std::placeholders::_1));
+    subscription_keyboard_ = create_subscription<radar_interfaces::msg::Keyboard>(
+        "keyboard", 10, std::bind(&OrientationNode::keyboardCallback, this, std::placeholders::_1));
 
     // 标定信息发布
     RCLCPP_INFO(this->get_logger(), "创建标定发布");
-    calibration_module1.publisher_calibrationui_ = create_publisher<radar_interfaces::msg::CalibrationUi>("calibration_1", 10);
-    calibration_module2.publisher_calibrationui_ = create_publisher<radar_interfaces::msg::CalibrationUi>("calibration_2", 10);
+    calibration_module[0].publisher_calibrationui_ = create_publisher<radar_interfaces::msg::CalibrationUi>("calibration_1", 10);
+    calibration_module[1].publisher_calibrationui_ = create_publisher<radar_interfaces::msg::CalibrationUi>("calibration_2", 10);
 
     // tf发布
     RCLCPP_INFO(this->get_logger(), "创建tf发布");
@@ -201,13 +196,10 @@ namespace radar_orientation
       moo = 1;
 
       RCLCPP_INFO(this->get_logger(), "开始正式运行");
-      publisher_status_ = this->create_publisher<radar_interfaces::msg::Status>("radar_status", 10);
-      message_.status = status_flag;
-      publisher_status_->publish(message_);
 
+      //----------------------------------------------------------------------------
       // 结算相机位姿态
-      pnp_solver_module1.calibration_solver(calibration_module1.point);
-
+      pnp_solver_module1.calibration_solver(calibration_module[0].point);
       pnp_solver_module1.solver_3Dto2D();
 
       // 发布
@@ -218,21 +210,46 @@ namespace radar_orientation
       RCLCPP_INFO(this->get_logger(), "%d", pnp_solver_module1.region_pointnum);
 
       // 数组
-      cv::Mat mat(pnp_solver_module1.region_pointnum * 2, 1, CV_32S);
+      cv::Mat mat_1(pnp_solver_module1.region_pointnum * 2, 1, CV_32S);
 
       // 逐个添加向量中的元素到矩阵中
       for (int i = 0; i < pnp_solver_module1.region_pointnum; i++)
       {
-        mat.at<cv::Vec2i>(2 * i, 0) = static_cast<int>(pnp_solver_module1.Points2d[i].x);
-        mat.at<cv::Vec2i>(2 * i + 1, 0) = static_cast<int>(pnp_solver_module1.Points2d[i].y);
+        mat_1.at<cv::Vec2i>(2 * i, 0) = static_cast<int>(pnp_solver_module1.Points2d[i].x);
+        mat_1.at<cv::Vec2i>(2 * i + 1, 0) = static_cast<int>(pnp_solver_module1.Points2d[i].y);
       }
 
-      pnp_solver_module1.calibrationtf_message_.region = mat;
+      pnp_solver_module1.calibrationtf_message_.region = mat_1;
       pnp_solver_module1.publisher_calibrationtf_->publish(pnp_solver_module1.calibrationtf_message_);
 
-      double rx = pnp_solver_module1.rvec.at<double>(0, 0);
-      double ry = pnp_solver_module1.rvec.at<double>(0, 1);
-      double rz = pnp_solver_module1.rvec.at<double>(0, 2);
+      //----------------------------------------------------------------------------
+      // 结算相机位姿态
+      pnp_solver_module2.calibration_solver(calibration_module[1].point);
+      pnp_solver_module2.solver_3Dto2D();
+
+      // 发布
+      pnp_solver_module2.publisher_calibrationtf_ = this->create_publisher<radar_interfaces::msg::CalibrationTf>("calibration_tf_2", 10);
+      pnp_solver_module2.calibrationtf_message_.rvec = pnp_solver_module2.rvec;
+      pnp_solver_module2.calibrationtf_message_.tvec = pnp_solver_module2.tvec;
+
+      RCLCPP_INFO(this->get_logger(), "%d", pnp_solver_module1.region_pointnum);
+
+      // 数组
+      cv::Mat mat_2(pnp_solver_module2.region_pointnum * 2, 1, CV_32S);
+
+      // 逐个添加向量中的元素到矩阵中
+      for (int i = 0; i < pnp_solver_module2.region_pointnum; i++)
+      {
+        mat_2.at<cv::Vec2i>(2 * i, 0) = static_cast<int>(pnp_solver_module2.Points2d[i].x);
+        mat_2.at<cv::Vec2i>(2 * i + 1, 0) = static_cast<int>(pnp_solver_module2.Points2d[i].y);
+      }
+
+      pnp_solver_module2.calibrationtf_message_.region = mat_2;
+      pnp_solver_module2.publisher_calibrationtf_->publish(pnp_solver_module2.calibrationtf_message_);
+
+      // double rx = pnp_solver_module1.rvec.at<double>(0, 0);
+      // double ry = pnp_solver_module1.rvec.at<double>(0, 1);
+      // double rz = pnp_solver_module1.rvec.at<double>(0, 2);
 
       /*
       cv::Mat mat_rvec = cv::Mat::ones(3, 3, CV_64FC1);
@@ -256,23 +273,23 @@ namespace radar_orientation
       cv::Mat B = mat_tvec * mat_rvec * A;
       */
 
-      tf_camera_r.header.frame_id = "map";
-      tf_camera_r.child_frame_id = "camera_r";
-
-      tf2::Quaternion q;
-      q.setRPY(rx, ry, rz);
-
-      tf_camera.header.frame_id = "camera_r";
-      tf_camera.child_frame_id = "camera";
-
-      tf_camera.transform.rotation.x = q.x();
-      tf_camera.transform.rotation.y = q.y();
-      tf_camera.transform.rotation.z = q.z();
-      tf_camera.transform.rotation.w = q.w();
-
-      tf_camera.transform.translation.x = pnp_solver_module1.tvec.at<double>(0, 0) / 1000;
-      tf_camera.transform.translation.y = pnp_solver_module1.tvec.at<double>(0, 1) / 1000;
-      tf_camera.transform.translation.z = pnp_solver_module1.tvec.at<double>(0, 2) / 1000;
+      // tf_camera_r.header.frame_id = "map";
+      // tf_camera_r.child_frame_id = "camera_r";
+      //
+      // tf2::Quaternion q;
+      // q.setRPY(rx, ry, rz);
+      //
+      // tf_camera.header.frame_id = "camera_r";
+      // tf_camera.child_frame_id = "camera";
+      //
+      // tf_camera.transform.rotation.x = q.x();
+      // tf_camera.transform.rotation.y = q.y();
+      // tf_camera.transform.rotation.z = q.z();
+      // tf_camera.transform.rotation.w = q.w();
+      //
+      // tf_camera.transform.translation.x = pnp_solver_module1.tvec.at<double>(0, 0) / 1000;
+      // tf_camera.transform.translation.y = pnp_solver_module1.tvec.at<double>(0, 1) / 1000;
+      // tf_camera.transform.translation.z = pnp_solver_module1.tvec.at<double>(0, 2) / 1000;
 
       // Send the transformation
     }
@@ -358,6 +375,31 @@ namespace radar_orientation
       tf_camera.header.stamp = now();
       broadcaster_->sendTransform(tf_camera);
     }
+  }
+
+  void OrientationNode::keyboardCallback(const radar_interfaces::msg::Keyboard::SharedPtr msg)
+  {
+    if (status_flag != 0)
+      return;
+    if (msg->keynum == 113 && point_select < 7)
+      point_select++;
+    else if (msg->keynum == 101 && point_select > 0)
+      point_select--;
+    else if (msg->keynum == 100 && calibration_point[point_select][0] < 1920)
+      calibration_module[point_select / 4].point[point_select % 4][0] += speed;
+    else if (msg->keynum == 97 && calibration_point[point_select][0] > 0)
+      calibration_module[point_select / 4].point[point_select % 4][0] -= speed;
+    else if (msg->keynum == 115 && calibration_point[point_select][1] < 1080)
+      calibration_module[point_select / 4].point[point_select % 4][1] += speed;
+    else if (msg->keynum == 119 && calibration_point[point_select][1] > 0)
+      calibration_module[point_select / 4].point[point_select % 4][1] -= speed;
+    else if (msg->keynum == 52 && msg->keynum < 3)
+      speed++;
+    else if (msg->keynum == 46 && msg->keynum > 1)
+      speed--;
+
+    calibration_module[0].CalibrationUipub();
+    calibration_module[1].CalibrationUipub();
   }
 }
 
