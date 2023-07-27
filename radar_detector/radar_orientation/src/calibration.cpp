@@ -6,14 +6,11 @@ namespace radar_orientation
 {
     void calibration::get_calibration_argument(std::vector<int64_t> param)
     {
-        point[0][0] = param[0];
-        point[0][1] = param[1];
-        point[1][0] = param[2];
-        point[1][1] = param[3];
-        point[2][0] = param[4];
-        point[2][1] = param[5];
-        point[3][0] = param[6];
-        point[3][1] = param[7];
+        for (int i = 0; i < 4; i++)
+        {
+            point[i][0] = param[i*2];
+            point[i][1] = param[i*2+1];
+        }
     }
 
     void calibration::keyboardCallback(const radar_interfaces::msg::Keyboard::SharedPtr msg)
@@ -36,9 +33,9 @@ namespace radar_orientation
         else if (msg->keynum == 119 && point[point_select][1] > 0)
             point[point_select][1] -= speed;
         else if (msg->keynum == 52 && msg->keynum < 3)
-            speed ++;
+            speed++;
         else if (msg->keynum == 46 && msg->keynum > 1)
-            speed --;
+            speed--;
 
         auto message = radar_interfaces::msg::CalibrationUi();
         message.point = point_select;

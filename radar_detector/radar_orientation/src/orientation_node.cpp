@@ -23,39 +23,60 @@ namespace radar_orientation
         std::make_shared<rclcpp::AsyncParametersClient>(this, "/global_parameter_server");
     parameters_client->wait_for_service();
 
-    //获取全局参数state(状态机)
+    parma_timer_ = this->create_wall_timer(std::chrono::milliseconds(50), std::bind(&OrientationNode::parmaCallback, this));
+
+    // 获取全局参数state(状态机)
     parameters_state = parameters_client->get_parameters(
         {"state"},
         std::bind(&OrientationNode::callbackGlobalParam, this, std::placeholders::_1));
 
     // 载入参数
     RCLCPP_INFO(this->get_logger(), "载入参数");
-    calibration_module.get_calibration_argument(this->declare_parameter<std::vector<int64_t>>("base1", calibration_module.acquiesce));
-    pnp_solver_module.get_pnp_argument(this->declare_parameter<std::vector<int64_t>>("base_3d", pnp_solver_module.Points4_list),
-                                       this->declare_parameter<int32_t>("region_num"),
-                                       this->declare_parameter<std::vector<int64_t>>("region_list"),
-                                       this->declare_parameter<std::vector<int64_t>>("region"));
+    calibration_module1.get_calibration_argument(this->declare_parameter<std::vector<int64_t>>("base1", calibration_module1.acquiesce));
+    calibration_module2.get_calibration_argument(this->declare_parameter<std::vector<int64_t>>("base2", calibration_module2.acquiesce));
+
+    auto base_3d = this->declare_parameter<std::vector<int64_t>>("base_3d");
+    auto region_num  = this->declare_parameter<int32_t>("region_num");
+    auto region_list  = this->declare_parameter<std::vector<int64_t>>("region_list");
+    auto region  = this->declare_parameter<std::vector<int64_t>>("region");
+
+    // 参数载入
+    pnp_solver_module1.get_pnp_argument(base_3d,region_num,region_list,region);
+
+    pnp_solver_module2.get_pnp_argument(base_3d,region_num,region_list,region);
 
     // 标定部分
-    RCLCPP_INFO(this->get_logger(), "进入标定状态");
-    subscription_keyboard_ = create_subscription<radar_interfaces::msg::Keyboard>(
-        "keyboard", 10, std::bind(&calibration::keyboardCallback, &calibration_module, std::placeholders::_1));
+    RCLCPP_INFO(this->get_logger(), "创建按键接收");
+    subscription_keyboard_1_ = create_subscription<radar_interfaces::msg::Keyboard>(
+        "keyboard", 10, std::bind(&calibration::keyboardCallback, &calibration_module1, std::placeholders::_1));
+    subscription_keyboard_2_ = create_subscription<radar_interfaces::msg::Keyboard>(
+        "keyboard", 10, std::bind(&calibration::keyboardCallback, &calibration_module2, std::placeholders::_1));
 
     // 标定信息发布
-    calibration_module.publisher_calibrationui_ = create_publisher<radar_interfaces::msg::CalibrationUi>("calibration", 10);
+    RCLCPP_INFO(this->get_logger(), "创建标定发布");
+    calibration_module1.publisher_calibrationui_ = create_publisher<radar_interfaces::msg::CalibrationUi>("calibration_1", 10);
+    calibration_module2.publisher_calibrationui_ = create_publisher<radar_interfaces::msg::CalibrationUi>("calibration_2", 10);
 
     // tf发布
+    RCLCPP_INFO(this->get_logger(), "创建tf发布");
     subscription_robotflag_ = create_subscription<radar_interfaces::msg::RobotFlag>(
         "camera1_flag", 10, std::bind(&OrientationNode::send_tf, this, std::placeholders::_1));
 
     broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
   }
 
+  void OrientationNode::parmaCallback()
+  {
+    parameters_state = parameters_client->get_parameters(
+        {"state"},
+        std::bind(&OrientationNode::callbackGlobalParam, this, std::placeholders::_1));
+  }
 
   void OrientationNode::callbackGlobalParam(std::shared_future<std::vector<rclcpp::Parameter>> future)
   {
     result = future.get();
     param = result.at(0);
+    // RCLCPP_INFO(this->get_logger(), "status: %ld",param.as_int());
     status_flag = param.as_int();
   }
 
@@ -173,10 +194,6 @@ namespace radar_orientation
   }
   void OrientationNode::send_tf(const radar_interfaces::msg::RobotFlag::SharedPtr msg)
   {
-    parameters_state = parameters_client->get_parameters(
-        {"state"},
-        std::bind(&OrientationNode::callbackGlobalParam, this, std::placeholders::_1));
-        
     if (status_flag == 1 && moo == 0)
     {
       // 按下Enter正式执行主程序前信息发布的代码
@@ -189,33 +206,33 @@ namespace radar_orientation
       publisher_status_->publish(message_);
 
       // 结算相机位姿态
-      pnp_solver_module.calibration_solver();
+      pnp_solver_module1.calibration_solver(calibration_module1.point);
 
-      pnp_solver_module.solver_3Dto2D();
+      pnp_solver_module1.solver_3Dto2D();
 
       // 发布
-      pnp_solver_module.publisher_calibrationtf_ = this->create_publisher<radar_interfaces::msg::CalibrationTf>("calibration_tf", 10);
-      pnp_solver_module.calibrationtf_message_.rvec = pnp_solver_module.rvec;
-      pnp_solver_module.calibrationtf_message_.tvec = pnp_solver_module.tvec;
+      pnp_solver_module1.publisher_calibrationtf_ = this->create_publisher<radar_interfaces::msg::CalibrationTf>("calibration_tf_1", 10);
+      pnp_solver_module1.calibrationtf_message_.rvec = pnp_solver_module1.rvec;
+      pnp_solver_module1.calibrationtf_message_.tvec = pnp_solver_module1.tvec;
 
-      RCLCPP_INFO(this->get_logger(), "%d", pnp_solver_module.region_pointnum);
+      RCLCPP_INFO(this->get_logger(), "%d", pnp_solver_module1.region_pointnum);
 
       // 数组
-      cv::Mat mat(pnp_solver_module.region_pointnum * 2, 1, CV_32S);
+      cv::Mat mat(pnp_solver_module1.region_pointnum * 2, 1, CV_32S);
 
       // 逐个添加向量中的元素到矩阵中
-      for (int i = 0; i < pnp_solver_module.region_pointnum; i++)
+      for (int i = 0; i < pnp_solver_module1.region_pointnum; i++)
       {
-        mat.at<cv::Vec2i>(2 * i, 0) = static_cast<int>(pnp_solver_module.Points2d[i].x);
-        mat.at<cv::Vec2i>(2 * i + 1, 0) = static_cast<int>(pnp_solver_module.Points2d[i].y);
+        mat.at<cv::Vec2i>(2 * i, 0) = static_cast<int>(pnp_solver_module1.Points2d[i].x);
+        mat.at<cv::Vec2i>(2 * i + 1, 0) = static_cast<int>(pnp_solver_module1.Points2d[i].y);
       }
 
-      pnp_solver_module.calibrationtf_message_.region = mat;
-      pnp_solver_module.publisher_calibrationtf_->publish(pnp_solver_module.calibrationtf_message_);
+      pnp_solver_module1.calibrationtf_message_.region = mat;
+      pnp_solver_module1.publisher_calibrationtf_->publish(pnp_solver_module1.calibrationtf_message_);
 
-      double rx = pnp_solver_module.rvec.at<double>(0, 0);
-      double ry = pnp_solver_module.rvec.at<double>(0, 1);
-      double rz = pnp_solver_module.rvec.at<double>(0, 2);
+      double rx = pnp_solver_module1.rvec.at<double>(0, 0);
+      double ry = pnp_solver_module1.rvec.at<double>(0, 1);
+      double rz = pnp_solver_module1.rvec.at<double>(0, 2);
 
       /*
       cv::Mat mat_rvec = cv::Mat::ones(3, 3, CV_64FC1);
@@ -253,9 +270,9 @@ namespace radar_orientation
       tf_camera.transform.rotation.z = q.z();
       tf_camera.transform.rotation.w = q.w();
 
-      tf_camera.transform.translation.x = pnp_solver_module.tvec.at<double>(0, 0) / 1000;
-      tf_camera.transform.translation.y = pnp_solver_module.tvec.at<double>(0, 1) / 1000;
-      tf_camera.transform.translation.z = pnp_solver_module.tvec.at<double>(0, 2) / 1000;
+      tf_camera.transform.translation.x = pnp_solver_module1.tvec.at<double>(0, 0) / 1000;
+      tf_camera.transform.translation.y = pnp_solver_module1.tvec.at<double>(0, 1) / 1000;
+      tf_camera.transform.translation.z = pnp_solver_module1.tvec.at<double>(0, 2) / 1000;
 
       // Send the transformation
     }
@@ -265,7 +282,7 @@ namespace radar_orientation
     if (status_flag == 1)
     {
       // 基于2d图像的警戒方案
-      for (int i = 0; i < pnp_solver_module.region_num; i++)
+      for (int i = 0; i < pnp_solver_module1.region_num; i++)
       {
         warn_flag[i] = 0;
       }
@@ -276,14 +293,14 @@ namespace radar_orientation
         if (msg->robot_2d[2 * i] == 0 && msg->robot_2d[2 * i + 1] == 0)
           continue;
         int add = 0;
-        for (int j = 0; j < pnp_solver_module.region_num; j++)
+        for (int j = 0; j < pnp_solver_module1.region_num; j++)
         {
           std::vector<cv::Point2f> firstPoints;
-          firstPoints.resize(pnp_solver_module.region_list_num[j]);
+          firstPoints.resize(pnp_solver_module1.region_list_num[j]);
 
-          std::copy(pnp_solver_module.Points2d.begin() + add, pnp_solver_module.Points2d.begin() + add + pnp_solver_module.region_list_num[j], firstPoints.begin());
+          std::copy(pnp_solver_module1.Points2d.begin() + add, pnp_solver_module1.Points2d.begin() + add + pnp_solver_module1.region_list_num[j], firstPoints.begin());
           // RCLCPP_INFO(this->get_logger(), "参数 %d %d ", add, pnp_solver_module.region_list_num[j]);
-          add += pnp_solver_module.region_list_num[j];
+          add += pnp_solver_module1.region_list_num[j];
           // RCLCPP_INFO(this->get_logger(), "框位 %d %d %d %d %d %d %d %d", (int)firstPoints[0].x, (int)firstPoints[0].y, (int)firstPoints[1].x, (int)firstPoints[1].y, (int)firstPoints[2].x, (int)firstPoints[2].y, (int)firstPoints[3].x, (int)firstPoints[3].y);
           // RCLCPP_INFO(this->get_logger(), "点位 %d %d ", msg->robot_2d[2 * i], msg->robot_2d[2 * i + 1]);
           if (pointInPolygon(point, firstPoints) && msg->robot_id[i] == 1) // 1 blue 2 red 3 uk

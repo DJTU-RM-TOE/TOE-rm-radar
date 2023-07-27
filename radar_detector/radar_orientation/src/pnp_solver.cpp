@@ -3,7 +3,7 @@
 
 namespace radar_orientation
 {
-    void pnp_solver::calibration_solver()
+    void pnp_solver::calibration_solver(int (&point)[4][2])
     {
         for (int i = 0; i < 4; i++)
         {

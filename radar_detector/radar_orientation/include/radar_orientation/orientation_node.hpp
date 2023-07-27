@@ -15,13 +15,6 @@ namespace radar_orientation
   // 全局状态标志
   int status_flag = 0;
 
-  // 标定框2D坐标
-  // 标定框参数初始化
-  std::vector<std::vector<int>> point{{0, 0},
-                                        {0, 0},
-                                        {0, 0},
-                                        {0, 0}};
-
   // 主节点类
   class OrientationNode : public rclcpp::Node
   {
@@ -30,19 +23,25 @@ namespace radar_orientation
 
   private:
     // 标定类
-    calibration calibration_module;
+    calibration calibration_module1;
+    calibration calibration_module2;
     // pnp
-    pnp_solver pnp_solver_module;
+    pnp_solver pnp_solver_module1;
+    pnp_solver pnp_solver_module2;
+
+    // 全局参数读取
+    void parmaCallback();
+    void callbackGlobalParam(std::shared_future<std::vector<rclcpp::Parameter>> future);
 
     double rvecArray[3];
     double tvecArray[3];
 
     void detector_data();
     void send_tf(const radar_interfaces::msg::RobotFlag::SharedPtr msg);
-    bool pointInPolygon(cv::Point2f point, const std::vector<cv::Point2f>& polygon);
-    void callbackGlobalParam(std::shared_future<std::vector<rclcpp::Parameter>> future);
+    bool pointInPolygon(cv::Point2f point, const std::vector<cv::Point2f> &polygon);
 
-    rclcpp::Subscription<radar_interfaces::msg::Keyboard>::SharedPtr subscription_keyboard_;
+    rclcpp::Subscription<radar_interfaces::msg::Keyboard>::SharedPtr subscription_keyboard_1_;
+    rclcpp::Subscription<radar_interfaces::msg::Keyboard>::SharedPtr subscription_keyboard_2_;
 
     rclcpp::Subscription<radar_interfaces::msg::RobotFlag>::SharedPtr subscription_robotflag_;
 
@@ -75,7 +74,7 @@ namespace radar_orientation
     int warn_flag[4];
     //
 
-    //全局参数
+    // 全局参数
     std::shared_ptr<rclcpp::AsyncParametersClient> parameters_client;
     std::vector<rclcpp::Parameter> parameters;
 
@@ -84,7 +83,9 @@ namespace radar_orientation
     std::vector<rclcpp::Parameter> result;
     rclcpp::Parameter param;
 
-    int moo  = 0;
+    rclcpp::TimerBase::SharedPtr parma_timer_;
+
+    int moo = 0;
   };
 }
 

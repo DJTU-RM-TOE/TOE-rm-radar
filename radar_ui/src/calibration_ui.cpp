@@ -39,17 +39,24 @@ namespace calibration_ui
           "image_raw_2", 10, std::bind(&calibration_ui_node::videoCallback_2, this, std::placeholders::_1));
 
       subscription_calibrationui_ = create_subscription<radar_interfaces::msg::CalibrationUi>(
-          "calibration", 10, std::bind(&calibration_ui_node::CalibrationCallback, this, std::placeholders::_1));
+          "calibration_1", 10, std::bind(&calibration_ui_node::CalibrationCallback, this, std::placeholders::_1));
 
       subscription_calibrationtf_ = create_subscription<radar_interfaces::msg::CalibrationTf>(
-          "calibration_tf", 10, std::bind(&calibration_ui_node::CalibrationTfCallback, this, std::placeholders::_1));
+          "calibration_tf_1", 10, std::bind(&calibration_ui_node::CalibrationTfCallback, this, std::placeholders::_1));
 
       image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("calibration_ui", 10);
 
-      timer_ = this->create_wall_timer(std::chrono::milliseconds(10), std::bind(&calibration_ui_node::videoCallback, this));
+      video_timer_ = this->create_wall_timer(std::chrono::milliseconds(10), std::bind(&calibration_ui_node::videoCallback, this));
+      parma_timer_ = this->create_wall_timer(std::chrono::milliseconds(50), std::bind(&calibration_ui_node::parmaCallback, this));
     }
 
   private:
+    void parmaCallback()
+    {
+      parameters_state = parameters_client->get_parameters(
+          {"state"},
+          std::bind(&calibration_ui_node::callbackGlobalParam, this, std::placeholders::_1));
+    }
     void callbackGlobalParam(std::shared_future<std::vector<rclcpp::Parameter>> future)
     {
       result = future.get();
@@ -93,11 +100,8 @@ namespace calibration_ui
 
     void videoCallback()
     {
-      //获取状态参数
-      //parameters_state = parameters_client->get_parameters(
-      //    {"state"},
-      //    std::bind(&calibration_ui_node::callbackGlobalParam, this, std::placeholders::_1));
-      
+      // 获取状态参数
+
       int width = image_1.cols;
       int height = image_1.rows;
 
@@ -141,7 +145,7 @@ namespace calibration_ui
       //   leave += region_list[i];
       // }
 
-      if (status_flag == 0)
+      if (status_flag == 1)
       {
 
         points.clear();
@@ -232,6 +236,8 @@ namespace calibration_ui
     std::vector<rclcpp::Parameter> result;
     rclcpp::Parameter param;
 
+    rclcpp::TimerBase::SharedPtr parma_timer_;
+
     int status_flag = 0;
 
     // 接收相机图像
@@ -258,7 +264,7 @@ namespace calibration_ui
 
     rclcpp::Subscription<radar_interfaces::msg::CalibrationTf>::SharedPtr subscription_calibrationtf_;
 
-    rclcpp::TimerBase::SharedPtr timer_;
+    rclcpp::TimerBase::SharedPtr video_timer_;
 
     int point_select = 0;
 

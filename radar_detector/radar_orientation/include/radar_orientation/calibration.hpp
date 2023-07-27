@@ -13,17 +13,17 @@
 
 namespace radar_orientation
 {
-    extern std::vector<std::vector<int>> point;
     extern int status_flag;
     class calibration
     {
     public:
+        int point[4][2] = {0};
         // 标定框点选取
         int point_select = 0;
 
         // 标定框默认参数
         std::vector<int64_t> acquiesce{100, 100, 100, 200, 200, 200, 200, 100};
-        
+
         // 载入默认参数
         void get_calibration_argument(std::vector<int64_t> param);
 
@@ -31,6 +31,7 @@ namespace radar_orientation
         void keyboardCallback(const radar_interfaces::msg::Keyboard::SharedPtr msg);
         // 发布标定框
         rclcpp::Publisher<radar_interfaces::msg::CalibrationUi>::SharedPtr publisher_calibrationui_;
+
     private:
         int speed = 1;
     };

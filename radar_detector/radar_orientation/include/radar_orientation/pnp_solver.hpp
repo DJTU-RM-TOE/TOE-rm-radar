@@ -6,12 +6,11 @@
 namespace radar_orientation
 {
     extern int status_flag;
-    extern std::vector<std::vector<int>> point;
     class pnp_solver
     {
     public:
         void get_pnp_argument(std::vector<int64_t> param_0, int32_t region_num_param, std::vector<int64_t> region_list, std::vector<int64_t> region);
-        void calibration_solver();
+        void calibration_solver(int (&point)[4][2]);
         void solver_2Dto3D();
         void solver_3Dto2D();
 
