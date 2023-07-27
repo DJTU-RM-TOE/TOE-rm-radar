@@ -40,6 +40,7 @@ namespace radar_orientation
     void detector_data();
     void send_tf(const radar_interfaces::msg::RobotFlag::SharedPtr msg);
     bool pointInPolygon(cv::Point2f point, const std::vector<cv::Point2f>& polygon);
+    void callbackGlobalParam(std::shared_future<std::vector<rclcpp::Parameter>> future);
 
     rclcpp::Subscription<radar_interfaces::msg::Keyboard>::SharedPtr subscription_keyboard_;
 
@@ -73,6 +74,17 @@ namespace radar_orientation
     //
     int warn_flag[4];
     //
+
+    //全局参数
+    std::shared_ptr<rclcpp::AsyncParametersClient> parameters_client;
+    std::vector<rclcpp::Parameter> parameters;
+
+    std::shared_future<std::vector<rclcpp::Parameter>> parameters_state;
+
+    std::vector<rclcpp::Parameter> result;
+    rclcpp::Parameter param;
+
+    int moo  = 0;
   };
 }
 

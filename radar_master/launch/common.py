@@ -24,6 +24,15 @@ launch_params = yaml.safe_load(
 node_params = os.path.join(
     get_package_share_directory("radar_master"), "config", "node_params.yaml"
 )
+
+def get_radar_parma_node(package, executable, name):
+    return Node(
+        package=package,  # 替换为你的包名
+        executable=executable,  # 替换为你的可执行文件名
+        name=name,
+        parameters=[node_params],
+    )
+    
    
 def get_camera_node(package, plugin, name):
     return ComposableNode(
@@ -64,8 +73,8 @@ def get_radar_cv_container(camera_node_1,camera_node_2,radar_robot_detector_node
         composable_node_descriptions=[
             camera_node_1,
             camera_node_2,
-            #radar_robot_detector_node,
-            #calibration_ui_node
+            radar_robot_detector_node,
+            calibration_ui_node
         ],
         output='screen',
         ros_arguments=['--ros-args', '--log-level',

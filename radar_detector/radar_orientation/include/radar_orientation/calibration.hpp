@@ -29,10 +29,10 @@ namespace radar_orientation
 
         // 键盘回调函数 同时发布标定框参数
         void keyboardCallback(const radar_interfaces::msg::Keyboard::SharedPtr msg);
-        // Enter按下标志位
-        int enter_flag = 0;
         // 发布标定框
         rclcpp::Publisher<radar_interfaces::msg::CalibrationUi>::SharedPtr publisher_calibrationui_;
+    private:
+        int speed = 1;
     };
 }
 

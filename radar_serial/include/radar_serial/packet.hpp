@@ -10,19 +10,48 @@
 
 namespace radar_serial_driver
 {
+  typedef struct
+  {
+    uint8_t robot_id;
+    uint8_t robot_level;
+    uint16_t current_HP;
+    uint16_t maximum_HP;
+    uint16_t shooter_id1_17mm_barrel_cooling_value;
+    uint16_t shooter_id1_17mm_barrel_heat_limit;
+    uint16_t shooter_id1_17mm_initial_launching_speed_limit;
+    uint16_t shooter_id2_17mm_barrel_cooling_valuecooling_rate;
+    uint16_t shooter_id2_17mm_barrel_heatcooling_limit;
+    uint16_t shooter_id2_17mm_initial_launching_speed_limit;
+    uint16_t shooter_id1_42mm__barrel_cooling__value;
+    uint16_t shooter_id1_42mm_barrel_heat_cooling_limit;
+    uint16_t shooter_id1_42mm_initial_launching_speed_limit;
+    uint16_t chassis_power_limit;
+    uint8_t power_management_gimbal_output : 1;
+    uint8_t power_management_chassis_output : 1;
+    uint8_t power_management_shooter_output : 1;
+  } __attribute__((packed)) robot_status_t;
+
+  typedef struct
+  {
+    uint16_t chassis_voltage;
+    uint16_t chassis_current;
+    float chassis_power;
+    uint16_t buffer_energy;
+    uint16_t shooter_17mm_1_barrel_heat;
+    uint16_t shooter_17mm_2_barrel_heat;
+    uint16_t shooter_42mm_barrel_heat;
+  } __attribute__((packed)) power_heat_data_t;
+
   struct ReceivePacket
   {
-    uint8_t SOF = 0x5A;
-    uint16_t data_length = 11;
+    uint8_t SOF;
+    uint16_t data_length;
     uint8_t seq;
     uint8_t CRC8;
 
     uint16_t cmd_id;
 
-    uint8_t game_type : 4;
-    uint8_t game_progress : 4;
-    uint16_t stage_remain_time;
-    uint64_t SyncTimeStamp;
+    robot_status_t message;
 
     uint16_t CRC16;
   } __attribute__((packed));
@@ -37,7 +66,6 @@ namespace radar_serial_driver
     uint16_t cmd_id = 0x0305U;
 
     uint16_t target_robot_ID = 0x0001U;
-
     float target_position_x = 0.0;
     float target_position_y = 0.0;
 

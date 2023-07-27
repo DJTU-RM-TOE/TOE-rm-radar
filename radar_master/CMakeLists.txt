@@ -16,8 +16,8 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   DIRECTORY src
 )
 
-ament_auto_add_executable(keyboard_node
-    src/keyboard.cpp
+ament_auto_add_executable(global_parameter_server
+    src/global_parameter_server.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})

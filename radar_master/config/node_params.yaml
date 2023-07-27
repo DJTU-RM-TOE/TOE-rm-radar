@@ -1,4 +1,4 @@
-/global_parameter:
+/global_parameter_server:
   ros__parameters:
     model: 0 
     state: 0
@@ -13,7 +13,7 @@
     use_sensor_data_qos: false
 
     exposure_time: 30000
-    gain: 3.0
+    gain: 5.0
 
     offset_x: 0
     offset_y: 0
@@ -57,6 +57,11 @@
               -5195, 1772, 615  ,
               -5195, 1112, 615  , 
               12166, 0   , 1106 ]
+    
+    #base_3d: [500 , 500, 0 ,
+    #          -500, 500, 0  ,
+    #          -500, -500, 0  , 
+    #          500, -500, 0 ]
     
     region_num: 4
     region_list: [4,4,4,7]

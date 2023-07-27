@@ -14,8 +14,10 @@ def generate_launch_description():
     
     from common import get_camera_node,get_radar_orientation_node,get_calibration_ui_node,get_radar_cv_container
     from common import get_map_2D_node,get_radar_ui_container,get_save_node
-    from common import get_radar_identification_node
+    from common import get_radar_identification_node,get_radar_parma_node
     
+    radar_parma_node = get_radar_parma_node('radar_master', 'global_parameter_server', "global_parameter_server")
+    #######################################################################
     hik_camera_node_1 = get_camera_node('hik_camera', 'hik_camera::HikCameraNode', "camera_1_node")
     hik_camera_node_2 = get_camera_node('hik_camera', 'hik_camera::HikCameraNode', "camera_2_node")
     
@@ -47,8 +49,9 @@ def generate_launch_description():
     return LaunchDescription(
         [
             radar_cv_module,
+            radar_parma_node,
             radar_identification_node_1,
-            radar_identification_node_2
+            radar_identification_node_2,
             #radar_ui_module
         ]
     )

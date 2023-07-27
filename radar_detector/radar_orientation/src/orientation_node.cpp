@@ -16,6 +16,15 @@ namespace radar_orientation
 {
   OrientationNode::OrientationNode(const rclcpp::NodeOptions &options) : Node("radar_orientation_node", options)
   {
+    RCLCPP_INFO(this->get_logger(), "目标定位节点开始");
+    // 初始化全局参数（异步）
+    parameters_client =
+        std::make_shared<rclcpp::AsyncParametersClient>(this, "/global_parameter_server");
+    parameters_client->wait_for_service();
+    parameters_state = parameters_client->get_parameters(
+        {"state"},
+        std::bind(&OrientationNode::callbackGlobalParam, this, std::placeholders::_1));
+
     // 载入参数
     RCLCPP_INFO(this->get_logger(), "载入参数");
     calibration_module.get_calibration_argument(this->declare_parameter<std::vector<int64_t>>("base", calibration_module.acquiesce));
@@ -34,9 +43,17 @@ namespace radar_orientation
 
     // tf发布
     subscription_robotflag_ = create_subscription<radar_interfaces::msg::RobotFlag>(
-        "camera1", 10, std::bind(&OrientationNode::send_tf, this, std::placeholders::_1));
+        "camera1_flag", 10, std::bind(&OrientationNode::send_tf, this, std::placeholders::_1));
 
     broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
+  }
+
+
+  void OrientationNode::callbackGlobalParam(std::shared_future<std::vector<rclcpp::Parameter>> future)
+  {
+    result = future.get();
+    param = result.at(0);
+    status_flag = param.as_int();
   }
 
   void OrientationNode::detector_data()
@@ -44,7 +61,7 @@ namespace radar_orientation
     transformStamped_b1.header.frame_id = "map";
     transformStamped_b1.child_frame_id = "RobotB1";
     transformStamped_b1.transform.translation.x = 15.5; // 15
-    transformStamped_b1.transform.translation.y = -6.0;  // 8
+    transformStamped_b1.transform.translation.y = -6.0; // 8
     transformStamped_b1.transform.translation.z = 0.0;
 
     transformStamped_b2.header.frame_id = "map";
@@ -153,16 +170,20 @@ namespace radar_orientation
   }
   void OrientationNode::send_tf(const radar_interfaces::msg::RobotFlag::SharedPtr msg)
   {
-    if (calibration_module.enter_flag == 1)
+    parameters_state = parameters_client->get_parameters(
+        {"state"},
+        std::bind(&OrientationNode::callbackGlobalParam, this, std::placeholders::_1));
+        
+    if (status_flag == 1 && moo == 0)
     {
       // 按下Enter正式执行主程序前信息发布的代码
 
+      moo = 1;
+
       RCLCPP_INFO(this->get_logger(), "开始正式运行");
-      status_flag = 1;
       publisher_status_ = this->create_publisher<radar_interfaces::msg::Status>("radar_status", 10);
       message_.status = status_flag;
       publisher_status_->publish(message_);
-      calibration_module.enter_flag = 0;
 
       // 结算相机位姿态
       pnp_solver_module.calibration_solver();
@@ -264,13 +285,13 @@ namespace radar_orientation
           // RCLCPP_INFO(this->get_logger(), "点位 %d %d ", msg->robot_2d[2 * i], msg->robot_2d[2 * i + 1]);
           if (pointInPolygon(point, firstPoints) && msg->robot_id[i] == 1) // 1 blue 2 red 3 uk
           {
-            //RCLCPP_INFO(this->get_logger(), "进入警戒");
+            // RCLCPP_INFO(this->get_logger(), "进入警戒");
             warn_flag[j]++;
           }
         }
       }
 
-      //RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d", warn_flag[0], warn_flag[1], warn_flag[2], warn_flag[3]);
+      // RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d", warn_flag[0], warn_flag[1], warn_flag[2], warn_flag[3]);
 
       if (warn_flag[2] > 0)
       {
@@ -278,8 +299,8 @@ namespace radar_orientation
         transformStamped_b1.transform.translation.y = -7.0; // 8
         if (warn_flag[2] > 1)
         {
-          transformStamped_b2.transform.translation.x = 2.0; // 15
-          transformStamped_b2.transform.translation.y = -7.0;  // 8
+          transformStamped_b2.transform.translation.x = 2.0;  // 15
+          transformStamped_b2.transform.translation.y = -7.0; // 8
         }
       }
 

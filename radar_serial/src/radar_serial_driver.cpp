@@ -31,6 +31,13 @@ namespace radar_serial_driver
   {
     RCLCPP_INFO(get_logger(), "Start RMSerialDriver!");
 
+    // get param
+    parameters_client =
+        std::make_shared<rclcpp::AsyncParametersClient>(this, "/global_parameter_server");
+    parameters_client->wait_for_service();
+    auto parameters_future = parameters_client->get_parameters({"color"},
+                                                               std::bind(&RadarSerialDriver::callbackGlobalParam, this, std::placeholders::_1));
+
     tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
     tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 
@@ -48,11 +55,18 @@ namespace radar_serial_driver
     catch (const std::exception &ex)
     {
       RCLCPP_ERROR(
-          get_logger(), "Error creating serial port: %s - %s", device_name_.c_str(), ex.what());
+        get_logger(), "Error creating serial port: %s - %s", device_name_.c_str(), ex.what());
       throw ex;
     }
 
-    timer_ = create_wall_timer(std::chrono::milliseconds(100), std::bind(&RadarSerialDriver::sendData, this));
+    // timer_ = create_wall_timer(std::chrono::milliseconds(100), std::bind(&RadarSerialDriver::sendData, this));
+  }
+
+  void RadarSerialDriver::callbackGlobalParam(std::shared_future<std::vector<rclcpp::Parameter>> future)
+  {
+    std::vector<rclcpp::Parameter> result = future.get();
+    rclcpp::Parameter param = result.at(0);
+    RCLCPP_INFO(this->get_logger(), "Got color param: %ld", param.as_int());
   }
 
   RadarSerialDriver::~RadarSerialDriver()
@@ -79,6 +93,7 @@ namespace radar_serial_driver
     std::vector<uint8_t> data;
     data.reserve(sizeof(ReceivePacket));
 
+    ReceivePacket packet;
     while (rclcpp::ok())
     {
       serial_driver_->port()->receive(header);
@@ -88,15 +103,34 @@ namespace radar_serial_driver
         serial_driver_->port()->receive(data);
 
         data.insert(data.begin(), header[0]);
-        ReceivePacket packet = fromVector(data);
+        packet = fromVector(data);
 
-        uint8_t CRC8 = Get_CRC8_Check_Sum(reinterpret_cast<uint8_t *>(&packet), 4, 0xff);
-        uint16_t CRC16 = Get_CRC16_Check_Sum(reinterpret_cast<uint8_t *>(&packet), sizeof(packet) - 2, 0xffff);
-        if (CRC8 == packet.CRC8 && CRC16 == packet.CRC16)
+        if (packet.cmd_id == 0x201)
         {
-          // RCLCPP_INFO(get_logger(), "CRC yes!");
-          //  RCLCPP_INFO(get_logger(), "%x %x %x %x",packet.CRC8,CRC8,packet.CRC16,CRC16);
-          //  RCLCPP_INFO(get_logger(), "id : %x",packet.cmd_id);
+          uint8_t CRC8 = Get_CRC8_Check_Sum(reinterpret_cast<uint8_t *>(&packet), 4, 0xff);
+          uint16_t CRC16 = Get_CRC16_Check_Sum(reinterpret_cast<uint8_t *>(&packet), sizeof(packet) - 2, 0xffff);
+          long int id = packet.message.robot_id;
+          RCLCPP_INFO(get_logger(), "id: %ld", id);
+          if (id == 109)
+          {
+            parameters.push_back(rclcpp::Parameter("color", 1));
+          }
+          else if (id == 9)
+          {
+            parameters.push_back(rclcpp::Parameter("color", 0));
+          }
+          else
+          {
+            RCLCPP_INFO(get_logger(), "id data error");
+          }
+          parameters_client->set_parameters(parameters);
+
+          if (CRC8 == packet.CRC8 && CRC16 == packet.CRC16)
+          {
+            RCLCPP_INFO(get_logger(), "CRC yes!");
+            //  RCLCPP_INFO(get_logger(), "%x %x %x %x",packet.CRC8,CRC8,packet.CRC16,CRC16);
+            //  RCLCPP_INFO(get_logger(), "id : %x",packet.cmd_id);
+          }
         }
       }
     }
@@ -119,7 +153,7 @@ namespace radar_serial_driver
     packet.target_position_y = (float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.x + 7.5;
     packet.target_position_x = (float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.y + 14;
 
-    RCLCPP_INFO(get_logger(), "%f %f",transformStamped_num[COLOR_B][sequence_flag].transform.translation.x + 7.5,(float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.y + 14);
+    RCLCPP_INFO(get_logger(), "%f %f", transformStamped_num[COLOR_B][sequence_flag].transform.translation.x + 7.5, (float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.y + 14);
 
     if (packet.seq >= 255)
       packet.seq = 0;

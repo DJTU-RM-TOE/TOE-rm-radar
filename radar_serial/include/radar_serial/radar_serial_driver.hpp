@@ -37,6 +37,8 @@ namespace radar_serial_driver
 
     void listenTf();
 
+    void callbackGlobalParam(std::shared_future<std::vector<rclcpp::Parameter>> future);
+
     std::unique_ptr<IoContext> owned_ctx_;
     std::string device_name_;
     std::unique_ptr<drivers::serial_driver::SerialPortConfig> device_config_;
@@ -51,6 +53,11 @@ namespace radar_serial_driver
     geometry_msgs::msg::TransformStamped transformStamped_num[2][6];
     
     int sequence_flag = 0;
+    
+    //全局参数
+    std::shared_ptr<rclcpp::AsyncParametersClient> parameters_client;
+    std::vector<rclcpp::Parameter> parameters;
+
   }; // namespace rm_serial_driver
 }
 
