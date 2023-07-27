@@ -16,18 +16,21 @@ namespace radar_orientation
 {
   OrientationNode::OrientationNode(const rclcpp::NodeOptions &options) : Node("radar_orientation_node", options)
   {
-    RCLCPP_INFO(this->get_logger(), "目标定位节点开始");
-    // 初始化全局参数（异步）
+    RCLCPP_INFO(this->get_logger(), "姿态解算节点开始");
+
+    // 初始化全局参数(异步)
     parameters_client =
         std::make_shared<rclcpp::AsyncParametersClient>(this, "/global_parameter_server");
     parameters_client->wait_for_service();
+
+    //获取全局参数state(状态机)
     parameters_state = parameters_client->get_parameters(
         {"state"},
         std::bind(&OrientationNode::callbackGlobalParam, this, std::placeholders::_1));
 
     // 载入参数
     RCLCPP_INFO(this->get_logger(), "载入参数");
-    calibration_module.get_calibration_argument(this->declare_parameter<std::vector<int64_t>>("base", calibration_module.acquiesce));
+    calibration_module.get_calibration_argument(this->declare_parameter<std::vector<int64_t>>("base1", calibration_module.acquiesce));
     pnp_solver_module.get_pnp_argument(this->declare_parameter<std::vector<int64_t>>("base_3d", pnp_solver_module.Points4_list),
                                        this->declare_parameter<int32_t>("region_num"),
                                        this->declare_parameter<std::vector<int64_t>>("region_list"),
