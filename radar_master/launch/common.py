@@ -109,7 +109,7 @@ def get_serial_node(package, plugin):
         extra_arguments=[{"use_intra_process_comms": True}],
     )
     
-def get_radar_ui_container(ui_node,save_node):
+def get_radar_ui_container(ui_node,save_node,serial_node):
     return ComposableNodeContainer(
         name='radar_ui_container',
         namespace='',
@@ -117,7 +117,8 @@ def get_radar_ui_container(ui_node,save_node):
         executable='component_container',
         composable_node_descriptions=[
             ui_node,
-            save_node
+            #save_node,
+            #serial_node
         ],
         output='screen',
         ros_arguments=['--ros-args', '--log-level',

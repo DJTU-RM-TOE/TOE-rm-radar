@@ -207,7 +207,7 @@ namespace radar_orientation
       pnp_solver_module1.calibrationtf_message_.rvec = pnp_solver_module1.rvec;
       pnp_solver_module1.calibrationtf_message_.tvec = pnp_solver_module1.tvec;
 
-      RCLCPP_INFO(this->get_logger(), "%d", pnp_solver_module1.region_pointnum);
+      // RCLCPP_INFO(this->get_logger(), "%d", pnp_solver_module1.region_pointnum);
 
       // 数组
       cv::Mat mat_1(pnp_solver_module1.region_pointnum * 2, 1, CV_32S);
@@ -232,7 +232,7 @@ namespace radar_orientation
       pnp_solver_module2.calibrationtf_message_.rvec = pnp_solver_module2.rvec;
       pnp_solver_module2.calibrationtf_message_.tvec = pnp_solver_module2.tvec;
 
-      RCLCPP_INFO(this->get_logger(), "%d", pnp_solver_module1.region_pointnum);
+      // RCLCPP_INFO(this->get_logger(), "%d", pnp_solver_module1.region_pointnum);
 
       // 数组
       cv::Mat mat_2(pnp_solver_module2.region_pointnum * 2, 1, CV_32S);
@@ -298,12 +298,14 @@ namespace radar_orientation
 
     if (status_flag == 1)
     {
+
       // 基于2d图像的警戒方案
       for (int i = 0; i < pnp_solver_module1.region_num; i++)
       {
         warn_flag[i] = 0;
       }
 
+      // 检测图像一
       for (int i = 0; i < 12; i++)
       {
         cv::Point2f point(msg->robot_2d[2 * i], msg->robot_2d[2 * i + 1]);
@@ -322,23 +324,75 @@ namespace radar_orientation
           // RCLCPP_INFO(this->get_logger(), "点位 %d %d ", msg->robot_2d[2 * i], msg->robot_2d[2 * i + 1]);
           if (pointInPolygon(point, firstPoints) && msg->robot_id[i] == 1) // 1 blue 2 red 3 uk
           {
-            // RCLCPP_INFO(this->get_logger(), "进入警戒");
+            RCLCPP_INFO(this->get_logger(), "进入警戒");
             warn_flag[j]++;
           }
         }
       }
 
-      // RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d", warn_flag[0], warn_flag[1], warn_flag[2], warn_flag[3]);
+      // 检测图像二
+      /*
+      for (int i = 0; i < 12; i++)
+      {
+        cv::Point2f point(msg->robot_2d[2 * i], msg->robot_2d[2 * i + 1]);
+        if (msg->robot_2d[2 * i] == 0 && msg->robot_2d[2 * i + 1] == 0)
+          continue;
+        int add = 0;
+        for (int j = 0; j < pnp_solver_module2.region_num; j++)
+        {
+          std::vector<cv::Point2f> firstPoints;
+          firstPoints.resize(pnp_solver_module2.region_list_num[j]);
+          std::copy(pnp_solver_module2.Points2d.begin() + add, pnp_solver_module2.Points2d.begin() + add + pnp_solver_module2.region_list_num[j], firstPoints.begin());
+          add += pnp_solver_module2.region_list_num[j];
+          if (pointInPolygon(point, firstPoints) && msg->robot_id[i] == 1) // 1 blue 2 red 3 uk
+          {
+            RCLCPP_INFO(this->get_logger(), "进入警戒");
+            warn_flag[j]++;
+          }
+        }
+      }
+      */
 
+      RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d  %d  %d  %d  %d", warn_flag[0], warn_flag[1], warn_flag[2], warn_flag[3], warn_flag[4], warn_flag[5], warn_flag[6], warn_flag[7]);
+
+      if (warn_flag[0] > 0)
+      {
+        transformStamped_b1.transform.translation.x = -4.0; // 15
+        transformStamped_b1.transform.translation.y = -7.0; // 8
+      }
+      if (warn_flag[1] > 0)
+      {
+        transformStamped_b2.transform.translation.x = -5; // 15
+        transformStamped_b3.transform.translation.y = -5; // 8
+      }
       if (warn_flag[2] > 0)
       {
-        transformStamped_b1.transform.translation.x = 3.0;  // 15
-        transformStamped_b1.transform.translation.y = -7.0; // 8
-        if (warn_flag[2] > 1)
-        {
-          transformStamped_b2.transform.translation.x = 2.0;  // 15
-          transformStamped_b2.transform.translation.y = -7.0; // 8
-        }
+        transformStamped_b3.transform.translation.x = 3.0;  // 15
+        transformStamped_b3.transform.translation.y = -7.0; // 8
+      }
+      if (warn_flag[3] > 0)
+      {
+        transformStamped_b4.transform.translation.x = 3.5;  // 15
+        transformStamped_b4.transform.translation.y = -3.5; // 8
+      }
+
+      if (warn_flag[4] > 0)
+      {
+
+      }
+      if (warn_flag[5] > 0)
+      {
+
+      }
+      if (warn_flag[6] > 0)
+      {
+        transformStamped_b5.transform.translation.x = -3.0;  // 15
+        transformStamped_b5.transform.translation.y = 7.0; // 8
+      }
+      if (warn_flag[7] > 0)
+      {
+        transformStamped_b6.transform.translation.x = -3.5;  // 15
+        transformStamped_b6.transform.translation.y = 3.5; // 8
       }
 
       transformStamped_b1.header.stamp = now();
@@ -368,12 +422,6 @@ namespace radar_orientation
       broadcaster_->sendTransform(transformStamped_r4);
       broadcaster_->sendTransform(transformStamped_r5);
       broadcaster_->sendTransform(transformStamped_r6);
-
-      tf_camera_r.header.stamp = now();
-      broadcaster_->sendTransform(tf_camera_r);
-
-      tf_camera.header.stamp = now();
-      broadcaster_->sendTransform(tf_camera);
     }
   }
 
@@ -385,17 +433,17 @@ namespace radar_orientation
       point_select++;
     else if (msg->keynum == 101 && point_select > 0)
       point_select--;
-    else if (msg->keynum == 100 && calibration_point[point_select][0] < 1920)
+    else if (msg->keynum == 100 && calibration_module[point_select / 4].point[point_select % 4][0] < 1920)
       calibration_module[point_select / 4].point[point_select % 4][0] += speed;
-    else if (msg->keynum == 97 && calibration_point[point_select][0] > 0)
+    else if (msg->keynum == 97 && calibration_module[point_select / 4].point[point_select % 4][0] > 0)
       calibration_module[point_select / 4].point[point_select % 4][0] -= speed;
-    else if (msg->keynum == 115 && calibration_point[point_select][1] < 1080)
+    else if (msg->keynum == 115 && calibration_module[point_select / 4].point[point_select % 4][1] < 1080)
       calibration_module[point_select / 4].point[point_select % 4][1] += speed;
-    else if (msg->keynum == 119 && calibration_point[point_select][1] > 0)
+    else if (msg->keynum == 119 && calibration_module[point_select / 4].point[point_select % 4][1] > 0)
       calibration_module[point_select / 4].point[point_select % 4][1] -= speed;
-    else if (msg->keynum == 52 && msg->keynum < 3)
+    else if (msg->keynum == 114 && speed < 10)
       speed++;
-    else if (msg->keynum == 46 && msg->keynum > 1)
+    else if (msg->keynum == 102 && speed > 1)
       speed--;
 
     calibration_module[0].CalibrationUipub();

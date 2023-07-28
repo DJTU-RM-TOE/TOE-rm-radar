@@ -21,15 +21,14 @@ namespace calibration_ui
       parameters_client->wait_for_service();
 
       // 参数
-      region_list = this->declare_parameter<std::vector<int64_t>>("region_list");
+      std::vector<int64_t> region_list_ = this->declare_parameter<std::vector<int64_t>>("region_list");
       region_num = this->declare_parameter<int32_t>("region_num");
+
       for (int i = 0; i < region_num; i++)
       {
-        region_pointnum += region_list[i];
+        region_list[i] = static_cast<int>(region_list_[i]);
+        region_pointnum += region_list_[i];
       }
-
-      // RCLCPP_INFO(this->get_logger(), "%d", region_num);
-      // RCLCPP_INFO(this->get_logger(), "%d", region_pointnum);
 
       RCLCPP_INFO(this->get_logger(), "开始运行");
       subscription_1_ = create_subscription<sensor_msgs::msg::Image>(
@@ -100,7 +99,6 @@ namespace calibration_ui
       // 场地框
       if (status_flag == 1)
       {
-
         points.clear();
         points.push_back(cv::Point(region[0][0][0], region[0][0][1]));
         points.push_back(cv::Point(region[0][1][0], region[0][1][1]));
@@ -130,7 +128,37 @@ namespace calibration_ui
         points.push_back(cv::Point(region[0][16][0], region[0][16][1]));
         points.push_back(cv::Point(region[0][17][0], region[0][17][1]));
         points.push_back(cv::Point(region[0][18][0], region[0][18][1]));
+        cv::polylines(image_1, points, true, cv::Scalar(255, 0, 0), 2);
 
+        points.clear();
+        points.push_back(cv::Point(region[0][19][0], region[0][19][1]));
+        points.push_back(cv::Point(region[0][20][0], region[0][20][1]));
+        points.push_back(cv::Point(region[0][21][0], region[0][21][1]));
+        points.push_back(cv::Point(region[0][22][0], region[0][22][1]));
+        cv::polylines(image_1, points, true, cv::Scalar(255, 0, 0), 2);
+
+        points.clear();
+        points.push_back(cv::Point(region[0][23][0], region[0][23][1]));
+        points.push_back(cv::Point(region[0][24][0], region[0][24][1]));
+        points.push_back(cv::Point(region[0][25][0], region[0][25][1]));
+        points.push_back(cv::Point(region[0][26][0], region[0][26][1]));
+        cv::polylines(image_1, points, true, cv::Scalar(255, 0, 0), 2);
+
+        points.clear();
+        points.push_back(cv::Point(region[0][27][0], region[0][27][1]));
+        points.push_back(cv::Point(region[0][28][0], region[0][28][1]));
+        points.push_back(cv::Point(region[0][29][0], region[0][29][1]));
+        points.push_back(cv::Point(region[0][30][0], region[0][30][1]));
+        cv::polylines(image_1, points, true, cv::Scalar(255, 0, 0), 2);
+
+        points.clear();
+        points.push_back(cv::Point(region[0][31][0], region[0][31][1]));
+        points.push_back(cv::Point(region[0][32][0], region[0][32][1]));
+        points.push_back(cv::Point(region[0][33][0], region[0][33][1]));
+        points.push_back(cv::Point(region[0][34][0], region[0][34][1]));
+        points.push_back(cv::Point(region[0][35][0], region[0][35][1]));
+        points.push_back(cv::Point(region[0][36][0], region[0][36][1]));
+        points.push_back(cv::Point(region[0][37][0], region[0][37][1]));
         cv::polylines(image_1, points, true, cv::Scalar(255, 0, 0), 2);
       }
     }
@@ -162,59 +190,109 @@ namespace calibration_ui
       cv::polylines(image_2, points, true, cv::Scalar(0, 255, 0), 1);
 
       // 场地框
+
+      int num = 0;
       if (status_flag == 1)
       {
 
-        points.clear();
-        points.push_back(cv::Point(region[1][0][0], region[1][0][1]));
-        points.push_back(cv::Point(region[1][1][0], region[1][1][1]));
-        points.push_back(cv::Point(region[1][2][0], region[1][2][1]));
-        points.push_back(cv::Point(region[1][3][0], region[1][3][1]));
-        cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
+        for (int i = 0; i < region_num; i++)
+        {
+          // points.clear();
+          // for (int j = 0; j < region_list[region_num]; j++)
+          //{
+          //  // points.push_back(cv::Point(region[1][num+j][0], region[1][num+j][1]));
+          //  RCLCPP_INFO(this->get_logger(), "region %d %d", region[1][num + j][0], region[1][num + j][1]);
+          //}
 
-        points.clear();
-        points.push_back(cv::Point(region[1][4][0], region[1][4][1]));
-        points.push_back(cv::Point(region[1][5][0], region[1][5][1]));
-        points.push_back(cv::Point(region[1][6][0], region[1][6][1]));
-        points.push_back(cv::Point(region[1][7][0], region[1][7][1]));
-        cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
+          // cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
+          // num += region_list[i];
 
-        points.clear();
-        points.push_back(cv::Point(region[1][8][0], region[1][8][1]));
-        points.push_back(cv::Point(region[1][9][0], region[1][9][1]));
-        points.push_back(cv::Point(region[1][10][0], region[1][10][1]));
-        points.push_back(cv::Point(region[1][11][0], region[1][11][1]));
-        cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
+          points.clear();
+          points.push_back(cv::Point(region[1][0][0], region[1][0][1]));
+          points.push_back(cv::Point(region[1][1][0], region[1][1][1]));
+          points.push_back(cv::Point(region[1][2][0], region[1][2][1]));
+          points.push_back(cv::Point(region[1][3][0], region[1][3][1]));
+          cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
 
-        points.clear();
-        points.push_back(cv::Point(region[1][12][0], region[1][12][1]));
-        points.push_back(cv::Point(region[1][13][0], region[1][13][1]));
-        points.push_back(cv::Point(region[1][14][0], region[1][14][1]));
-        points.push_back(cv::Point(region[1][15][0], region[1][15][1]));
-        points.push_back(cv::Point(region[1][16][0], region[1][16][1]));
-        points.push_back(cv::Point(region[1][17][0], region[1][17][1]));
-        points.push_back(cv::Point(region[1][18][0], region[1][18][1]));
+          points.clear();
+          points.push_back(cv::Point(region[1][4][0], region[1][4][1]));
+          points.push_back(cv::Point(region[1][5][0], region[1][5][1]));
+          points.push_back(cv::Point(region[1][6][0], region[1][6][1]));
+          points.push_back(cv::Point(region[1][7][0], region[1][7][1]));
+          cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
 
-        cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
+          points.clear();
+          points.push_back(cv::Point(region[1][8][0], region[1][8][1]));
+          points.push_back(cv::Point(region[1][9][0], region[1][9][1]));
+          points.push_back(cv::Point(region[1][10][0], region[1][10][1]));
+          points.push_back(cv::Point(region[1][11][0], region[1][11][1]));
+          cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
+
+          points.clear();
+          points.push_back(cv::Point(region[1][12][0], region[1][12][1]));
+          points.push_back(cv::Point(region[1][13][0], region[1][13][1]));
+          points.push_back(cv::Point(region[1][14][0], region[1][14][1]));
+          points.push_back(cv::Point(region[1][15][0], region[1][15][1]));
+          points.push_back(cv::Point(region[1][16][0], region[1][16][1]));
+          points.push_back(cv::Point(region[1][17][0], region[1][17][1]));
+          points.push_back(cv::Point(region[1][18][0], region[1][18][1]));
+          cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
+
+          points.clear();
+          points.push_back(cv::Point(region[1][19][0], region[1][19][1]));
+          points.push_back(cv::Point(region[1][20][0], region[1][20][1]));
+          points.push_back(cv::Point(region[1][21][0], region[1][21][1]));
+          points.push_back(cv::Point(region[1][22][0], region[1][22][1]));
+          cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
+
+          points.clear();
+          points.push_back(cv::Point(region[1][23][0], region[1][23][1]));
+          points.push_back(cv::Point(region[1][24][0], region[1][24][1]));
+          points.push_back(cv::Point(region[1][25][0], region[1][25][1]));
+          points.push_back(cv::Point(region[1][26][0], region[1][26][1]));
+          cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
+
+          points.clear();
+          points.push_back(cv::Point(region[1][27][0], region[1][27][1]));
+          points.push_back(cv::Point(region[1][28][0], region[1][28][1]));
+          points.push_back(cv::Point(region[1][29][0], region[1][29][1]));
+          points.push_back(cv::Point(region[1][30][0], region[1][30][1]));
+          cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
+
+          points.clear();
+          points.push_back(cv::Point(region[1][31][0], region[1][31][1]));
+          points.push_back(cv::Point(region[1][32][0], region[1][32][1]));
+          points.push_back(cv::Point(region[1][33][0], region[1][33][1]));
+          points.push_back(cv::Point(region[1][34][0], region[1][34][1]));
+          points.push_back(cv::Point(region[1][35][0], region[1][35][1]));
+          points.push_back(cv::Point(region[1][36][0], region[1][36][1]));
+          points.push_back(cv::Point(region[1][37][0], region[1][37][1]));
+          cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
+        }
       }
     }
 
     void videoCallback()
     {
+      // RCLCPP_INFO(this->get_logger(), "%d", region_num);
+      // RCLCPP_INFO(this->get_logger(), "%d", region_pointnum);
+      // RCLCPP_INFO(this->get_logger(), "region_list %d", region_list[0]);
 
       // 创建一个新的图像，用于合并两张图像
       cv::Mat merged_image(std::max(std::max(image_1.rows, image_2.rows), 220), image_1.cols + image_2.cols + 220, CV_8UC3);
       merged_image.setTo(cv::Scalar(0, 0, 0));
 
-      int x_start = std::max(point_x[point_select] - 5, 0);
-      int y_start = std::max(point_y[point_select] - 5, 0);
-      int x_end = std::min(point_x[point_select] + 6, merged_image.rows - 1);
-      int y_end = std::min(point_y[point_select] + 6, merged_image.cols - 1);
+      int rolx = point_x[point_select] + (int)(point_select / 4) * image_1.cols;
+      int roly = point_y[point_select];
+      int x_start = std::max(rolx -5, 0);
+      int y_start = std::max(roly - 5, 0);
+      int x_end = std::min(rolx + 6, merged_image.cols - 1);
+      int y_end = std::min(roly + 6, merged_image.rows - 1);
 
-      //RCLCPP_INFO(this->get_logger(), "x_start %d", x_start);
-      //RCLCPP_INFO(this->get_logger(), "y_start %d", y_start);
-      //RCLCPP_INFO(this->get_logger(), "x_end %d", x_end);
-      //RCLCPP_INFO(this->get_logger(), "y_end %d", y_end);
+      // RCLCPP_INFO(this->get_logger(), "x_start %d", x_start);
+      // RCLCPP_INFO(this->get_logger(), "y_start %d", y_start);
+      // RCLCPP_INFO(this->get_logger(), "x_end %d", x_end);
+      // RCLCPP_INFO(this->get_logger(), "y_end %d", y_end);
 
       cv::Rect range(x_start, y_start, x_end - x_start, y_end - y_start);
 
@@ -334,9 +412,9 @@ namespace calibration_ui
 
     int region_num = 0;
     int region_pointnum = 0;
-    int region[2][19][2] = {0};
+    int region[2][38][2] = {0};
 
-    std::vector<int64_t> region_list;
+    int region_list[38] = {0};
   };
 
 }

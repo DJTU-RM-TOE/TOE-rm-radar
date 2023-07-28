@@ -13,7 +13,6 @@
 
 namespace radar_orientation
 {
-    extern int calibration_point[8][2];
     extern int point_select;
     extern int status_flag;
     class calibration
@@ -21,7 +20,6 @@ namespace radar_orientation
     public:
         // 标定框点选取
         int point[4][2] = {0};
-        int point_select = 0;
 
         // 标定框默认参数
         std::vector<int64_t> acquiesce{100, 100, 100, 200, 200, 200, 200, 100};

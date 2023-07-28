@@ -42,7 +42,7 @@ namespace radar_serial_driver
     tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 
     getParams();
-
+    RCLCPP_INFO(get_logger(), "Finish getParams");
     try
     {
       serial_driver_->init_port(device_name_, *device_config_);
@@ -55,11 +55,11 @@ namespace radar_serial_driver
     catch (const std::exception &ex)
     {
       RCLCPP_ERROR(
-        get_logger(), "Error creating serial port: %s - %s", device_name_.c_str(), ex.what());
+          get_logger(), "Error creating serial port: %s - %s", device_name_.c_str(), ex.what());
       throw ex;
     }
 
-    // timer_ = create_wall_timer(std::chrono::milliseconds(100), std::bind(&RadarSerialDriver::sendData, this));
+    timer_ = create_wall_timer(std::chrono::milliseconds(100), std::bind(&RadarSerialDriver::sendData, this));
   }
 
   void RadarSerialDriver::callbackGlobalParam(std::shared_future<std::vector<rclcpp::Parameter>> future)
@@ -110,7 +110,7 @@ namespace radar_serial_driver
           uint8_t CRC8 = Get_CRC8_Check_Sum(reinterpret_cast<uint8_t *>(&packet), 4, 0xff);
           uint16_t CRC16 = Get_CRC16_Check_Sum(reinterpret_cast<uint8_t *>(&packet), sizeof(packet) - 2, 0xffff);
           long int id = packet.message.robot_id;
-          RCLCPP_INFO(get_logger(), "id: %ld", id);
+          // RCLCPP_INFO(get_logger(), "id: %ld", id);
           if (id == 109)
           {
             parameters.push_back(rclcpp::Parameter("color", 1));
@@ -127,9 +127,9 @@ namespace radar_serial_driver
 
           if (CRC8 == packet.CRC8 && CRC16 == packet.CRC16)
           {
-            RCLCPP_INFO(get_logger(), "CRC yes!");
-            //  RCLCPP_INFO(get_logger(), "%x %x %x %x",packet.CRC8,CRC8,packet.CRC16,CRC16);
-            //  RCLCPP_INFO(get_logger(), "id : %x",packet.cmd_id);
+            // RCLCPP_INFO(get_logger(), "CRC yes!");
+            //   RCLCPP_INFO(get_logger(), "%x %x %x %x",packet.CRC8,CRC8,packet.CRC16,CRC16);
+            //   RCLCPP_INFO(get_logger(), "id : %x",packet.cmd_id);
           }
         }
       }
@@ -140,7 +140,7 @@ namespace radar_serial_driver
   {
     SendPacket packet;
 
-    if (sequence_flag >= 5)
+    if (sequence_flag >= 6)
     {
       sequence_flag = 0;
     }
@@ -150,10 +150,20 @@ namespace radar_serial_driver
     RadarSerialDriver::listenTf();
 
     // send Blue
-    packet.target_position_y = (float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.x + 7.5;
-    packet.target_position_x = (float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.y + 14;
+    float y = (float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.y + 7.5;
+    float x = (float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.x + 14;
 
-    RCLCPP_INFO(get_logger(), "%f %f", transformStamped_num[COLOR_B][sequence_flag].transform.translation.x + 7.5, (float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.y + 14);
+    packet.target_position_y = y;
+    packet.target_position_x = x;
+
+    packet.target_robot_ID = 101 + sequence_flag;
+
+    RCLCPP_INFO(get_logger(), "%f %f", transformStamped_num[COLOR_B][sequence_flag].transform.translation.x + 14, (float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.y + 7.5);
+
+    if (y > 15 || x > 28)
+    {
+      return;
+    }
 
     if (packet.seq >= 255)
       packet.seq = 0;
@@ -207,7 +217,7 @@ namespace radar_serial_driver
     }
     catch (tf2::TransformException &ex)
     {
-      RCLCPP_WARN(this->get_logger(), "Failed to receive transform: %s", ex.what());
+      // RCLCPP_WARN(this->get_logger(), "Failed to receive transform: %s", ex.what());
     }
   }
 

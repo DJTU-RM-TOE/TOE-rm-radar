@@ -14,7 +14,6 @@ namespace radar_orientation
 {
   // 全局状态标志
   int status_flag = 0;
-  int calibration_point[8][2] = {0};
   int point_select = 0;
   // 主节点类
   class OrientationNode : public rclcpp::Node
@@ -73,7 +72,7 @@ namespace radar_orientation
     rclcpp::TimerBase::SharedPtr timer_;
 
     //
-    int warn_flag[4];
+    int warn_flag[8] = {0};
     //
 
     // 全局参数
