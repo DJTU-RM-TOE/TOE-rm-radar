@@ -11,7 +11,7 @@ find_package(rosidl_default_generators REQUIRED)
 ament_auto_find_build_dependencies()
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/Status.msg"
+  "msg/GlobalParam.msg"
   "msg/CalibrationUi.msg"
   "msg/Keyboard.msg"
   "msg/CalibrationTf.msg"

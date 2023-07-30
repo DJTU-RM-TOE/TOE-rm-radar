@@ -1,6 +1,3 @@
-// Copyright (c) 2022 ChenJun
-// Licensed under the Apache-2.0 License.
-
 #include "radar_serial/radar_serial_driver.hpp"
 
 // ROS

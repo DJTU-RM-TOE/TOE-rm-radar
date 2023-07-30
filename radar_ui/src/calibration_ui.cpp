@@ -1,10 +1,11 @@
-#include "rclcpp/rclcpp.hpp"
+#include <rclcpp/rclcpp.hpp>
+
 #include <sensor_msgs/msg/image.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.hpp>
 #include <opencv2/opencv.hpp>
 
-#include "radar_interfaces/msg/status.hpp"
+#include "radar_interfaces/msg/global_param.hpp"
 #include "radar_interfaces/msg/calibration_ui.hpp"
 #include "radar_interfaces/msg/calibration_tf.hpp"
 
@@ -15,11 +16,6 @@ namespace calibration_ui
   public:
     explicit calibration_ui_node(const rclcpp::NodeOptions &options) : Node("calibration_ui_node", options)
     {
-      // 全局参数
-      parameters_client =
-          std::make_shared<rclcpp::AsyncParametersClient>(this, "/global_parameter_server");
-      parameters_client->wait_for_service();
-
       // 参数
       std::vector<int64_t> region_list_ = this->declare_parameter<std::vector<int64_t>>("region_list");
       region_num = this->declare_parameter<int32_t>("region_num");
@@ -31,20 +27,25 @@ namespace calibration_ui
       }
 
       RCLCPP_INFO(this->get_logger(), "开始运行");
-      subscription_1_ = create_subscription<sensor_msgs::msg::Image>(
-          "image_raw_1", 10, std::bind(&calibration_ui_node::videoCallback_1, this, std::placeholders::_1));
 
-      subscription_2_ = create_subscription<sensor_msgs::msg::Image>(
-          "image_raw_2", 10, std::bind(&calibration_ui_node::videoCallback_2, this, std::placeholders::_1));
+      subscription_param_ = this->create_subscription<radar_interfaces::msg::GlobalParam>(
+          "global_param", 10,
+          std::bind(&calibration_ui_node::paramCallback, this, std::placeholders::_1));
+
+      subscription_image_raw1_ = create_subscription<sensor_msgs::msg::Image>(
+          "image_raw_1", 10, std::bind(&calibration_ui_node::videoCallback_1, this, std::placeholders::_1));
 
       subscription_calibrationui_1_ = create_subscription<radar_interfaces::msg::CalibrationUi>(
           "calibration_1", 10, std::bind(&calibration_ui_node::CalibrationCallback1, this, std::placeholders::_1));
 
-      subscription_calibrationui_2_ = create_subscription<radar_interfaces::msg::CalibrationUi>(
-          "calibration_2", 10, std::bind(&calibration_ui_node::CalibrationCallback2, this, std::placeholders::_1));
-
       subscription_calibrationtf_1_ = create_subscription<radar_interfaces::msg::CalibrationTf>(
           "calibration_tf_1", 10, std::bind(&calibration_ui_node::CalibrationTfCallback1, this, std::placeholders::_1));
+
+      subscription_image_raw2_ = create_subscription<sensor_msgs::msg::Image>(
+          "image_raw_2", 10, std::bind(&calibration_ui_node::videoCallback_2, this, std::placeholders::_1));
+
+      subscription_calibrationui_2_ = create_subscription<radar_interfaces::msg::CalibrationUi>(
+          "calibration_2", 10, std::bind(&calibration_ui_node::CalibrationCallback2, this, std::placeholders::_1));
 
       subscription_calibrationtf_2_ = create_subscription<radar_interfaces::msg::CalibrationTf>(
           "calibration_tf_2", 10, std::bind(&calibration_ui_node::CalibrationTfCallback2, this, std::placeholders::_1));
@@ -52,24 +53,9 @@ namespace calibration_ui
       image_pub_ = this->create_publisher<sensor_msgs::msg::Image>("calibration_ui", 10);
 
       video_timer_ = this->create_wall_timer(std::chrono::milliseconds(10), std::bind(&calibration_ui_node::videoCallback, this));
-      parma_timer_ = this->create_wall_timer(std::chrono::milliseconds(50), std::bind(&calibration_ui_node::parmaCallback, this));
     }
 
   private:
-    void parmaCallback()
-    {
-      parameters_state = parameters_client->get_parameters(
-          {"state"},
-          std::bind(&calibration_ui_node::callbackGlobalParam, this, std::placeholders::_1));
-    }
-
-    void callbackGlobalParam(std::shared_future<std::vector<rclcpp::Parameter>> future)
-    {
-      result = future.get();
-      param = result.at(0);
-      status_flag = param.as_int();
-    }
-
     void videoCallback_1(const sensor_msgs::msg::Image::SharedPtr msg)
     {
       // 转换ROS 2消息为OpenCV格式
@@ -284,7 +270,7 @@ namespace calibration_ui
 
       int rolx = point_x[point_select] + (int)(point_select / 4) * image_1.cols;
       int roly = point_y[point_select];
-      int x_start = std::max(rolx -5, 0);
+      int x_start = std::max(rolx - 5, 0);
       int y_start = std::max(roly - 5, 0);
       int x_end = std::min(rolx + 6, merged_image.cols - 1);
       int y_end = std::min(roly + 6, merged_image.rows - 1);
@@ -315,7 +301,10 @@ namespace calibration_ui
       cv::Mat roi_image3(merged_image, roi3);
       roi.copyTo(roi_image3);
 
-      img_msg_ = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", merged_image).toImageMsg();
+      cv::Mat final_image;
+      cv::resize(merged_image, final_image, cv::Size(merged_image.cols / 4, merged_image.rows / 4), 0, 0, cv::INTER_LINEAR);
+
+      img_msg_ = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", final_image).toImageMsg();
 
       image_pub_->publish(*img_msg_); // 发布图像消息
     }
@@ -364,26 +353,24 @@ namespace calibration_ui
       }
     }
 
+    void paramCallback(const radar_interfaces::msg::GlobalParam::SharedPtr msg)
+    {
+      status_flag = msg->status;
+      color_flag = msg->color;
+    }
     // 全局参数
-    std::shared_ptr<rclcpp::AsyncParametersClient> parameters_client;
-    std::vector<rclcpp::Parameter> parameters;
-
-    std::shared_future<std::vector<rclcpp::Parameter>> parameters_state;
-
-    std::vector<rclcpp::Parameter> result;
-    rclcpp::Parameter param;
-
-    rclcpp::TimerBase::SharedPtr parma_timer_;
+    rclcpp::Subscription<radar_interfaces::msg::GlobalParam>::SharedPtr subscription_param_;
 
     int status_flag = 0;
+    int color_flag = 0;
 
     // 接收相机图像
-    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_1_;
+    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_image_raw1_;
     cv_bridge::CvImageConstPtr cv_ptr_1;
     cv::Mat image_1;
     cv::Mat img_1;
 
-    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_2_;
+    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_image_raw2_;
     cv_bridge::CvImageConstPtr cv_ptr_2;
     cv::Mat image_2;
     cv::Mat img_2;

@@ -5,7 +5,7 @@
 #include "tf2/LinearMath/Quaternion.h"
 #include "geometry_msgs/msg/transform_stamped.hpp"
 
-#include "radar_interfaces/msg/status.hpp"
+#include "radar_interfaces/msg/global_param.hpp"
 #include "radar_interfaces/msg/keyboard.hpp"
 #include "radar_interfaces/msg/calibration_ui.hpp"
 #include "radar_interfaces/msg/robot_flag.hpp"
@@ -18,20 +18,12 @@ namespace radar_orientation
   {
     RCLCPP_INFO(this->get_logger(), "姿态解算节点开始");
 
-    // 初始化全局参数(异步)
-    parameters_client =
-        std::make_shared<rclcpp::AsyncParametersClient>(this, "/global_parameter_server");
-    parameters_client->wait_for_service();
-
-    parma_timer_ = this->create_wall_timer(std::chrono::milliseconds(50), std::bind(&OrientationNode::parmaCallback, this));
-
-    // 获取全局参数state(状态机)
-    parameters_state = parameters_client->get_parameters(
-        {"state"},
-        std::bind(&OrientationNode::callbackGlobalParam, this, std::placeholders::_1));
+    subscription_param_ = this->create_subscription<radar_interfaces::msg::GlobalParam>(
+        "global_param", 10,
+        std::bind(&OrientationNode::paramCallback, this, std::placeholders::_1));
 
     // 载入参数
-    RCLCPP_INFO(this->get_logger(), "载入参数");
+    RCLCPP_INFO(this->get_logger(), "参数初始化");
     calibration_module[0].get_calibration_argument(this->declare_parameter<std::vector<int64_t>>("base1", calibration_module[0].acquiesce));
     calibration_module[1].get_calibration_argument(this->declare_parameter<std::vector<int64_t>>("base2", calibration_module[1].acquiesce));
 
@@ -43,36 +35,30 @@ namespace radar_orientation
     pnp_solver_module2.get_pnp_argument(base_3d, region_num, region_list, region);
 
     // 标定部分
-    RCLCPP_INFO(this->get_logger(), "创建按键接收");
+    RCLCPP_INFO(this->get_logger(), "接收按键信息");
     subscription_keyboard_ = create_subscription<radar_interfaces::msg::Keyboard>(
         "keyboard", 10, std::bind(&OrientationNode::keyboardCallback, this, std::placeholders::_1));
 
     // 标定信息发布
-    RCLCPP_INFO(this->get_logger(), "创建标定发布");
+    RCLCPP_INFO(this->get_logger(), "发布标定信息");
     calibration_module[0].publisher_calibrationui_ = create_publisher<radar_interfaces::msg::CalibrationUi>("calibration_1", 10);
     calibration_module[1].publisher_calibrationui_ = create_publisher<radar_interfaces::msg::CalibrationUi>("calibration_2", 10);
 
-    // tf发布
-    RCLCPP_INFO(this->get_logger(), "创建tf发布");
-    subscription_robotflag_ = create_subscription<radar_interfaces::msg::RobotFlag>(
-        "camera1_flag", 10, std::bind(&OrientationNode::send_tf, this, std::placeholders::_1));
+    // 接收robotflag节点信息
+    RCLCPP_INFO(this->get_logger(), "接收robotflag节点信息");
+    subscription_robotflag_1_ = create_subscription<radar_interfaces::msg::RobotFlag>(
+        "camera1_flag", 10, std::bind(&OrientationNode::detector1, this, std::placeholders::_1));
+
+    subscription_robotflag_2_ = create_subscription<radar_interfaces::msg::RobotFlag>(
+        "camera2_flag", 10, std::bind(&OrientationNode::detector2, this, std::placeholders::_1));
 
     broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(this);
+    send_tf_timer_ = this->create_wall_timer(std::chrono::milliseconds(100), std::bind(&OrientationNode::send_tf, this));
   }
-
-  void OrientationNode::parmaCallback()
+  void OrientationNode::paramCallback(const radar_interfaces::msg::GlobalParam::SharedPtr msg)
   {
-    parameters_state = parameters_client->get_parameters(
-        {"state"},
-        std::bind(&OrientationNode::callbackGlobalParam, this, std::placeholders::_1));
-  }
-
-  void OrientationNode::callbackGlobalParam(std::shared_future<std::vector<rclcpp::Parameter>> future)
-  {
-    result = future.get();
-    param = result.at(0);
-    // RCLCPP_INFO(this->get_logger(), "status: %ld",param.as_int());
-    status_flag = param.as_int();
+    status_flag = msg->status;
+    color_flag = msg->color;
   }
 
   void OrientationNode::detector_data()
@@ -187,13 +173,80 @@ namespace radar_orientation
     else
       return true;
   }
-  void OrientationNode::send_tf(const radar_interfaces::msg::RobotFlag::SharedPtr msg)
+
+  void OrientationNode::detector1(const radar_interfaces::msg::RobotFlag::SharedPtr msg)
+  {
+    if (status_flag == 1 && moo == 1)
+    {
+      // 检测图像一
+
+      for (int i = 0; i < pnp_solver_module1.region_num; i++)
+      {
+        warn_flag[0][i] = 0;
+      }
+
+      for (int i = 0; i < 12; i++)
+      {
+        cv::Point2f point(msg->robot_2d[2 * i], msg->robot_2d[2 * i + 1]);
+        if (msg->robot_2d[2 * i] == 0 && msg->robot_2d[2 * i + 1] == 0)
+          continue;
+        int add = 0;
+        for (int j = 0; j < pnp_solver_module1.region_num; j++)
+        {
+          std::vector<cv::Point2f> firstPoints;
+          firstPoints.resize(pnp_solver_module1.region_list_num[j]);
+
+          std::copy(pnp_solver_module1.Points2d.begin() + add, pnp_solver_module1.Points2d.begin() + add + pnp_solver_module1.region_list_num[j], firstPoints.begin());
+          add += pnp_solver_module1.region_list_num[j];
+          if (pointInPolygon(point, firstPoints) && msg->robot_id[i] == 1) // 1 blue 2 red 3 uk
+          {
+            //RCLCPP_INFO(this->get_logger(), "进入警戒");
+            warn_flag[0][j]++;
+          }
+        }
+      }
+    }
+  }
+
+  void OrientationNode::detector2(const radar_interfaces::msg::RobotFlag::SharedPtr msg)
+  {
+    if (status_flag == 1 && moo == 1)
+    {
+
+      // 检测图像一
+      for (int i = 0; i < pnp_solver_module2.region_num; i++)
+      {
+        warn_flag[1][i] = 0;
+      }
+
+      for (int i = 0; i < 12; i++)
+      {
+        cv::Point2f point(msg->robot_2d[2 * i], msg->robot_2d[2 * i + 1]);
+        if (msg->robot_2d[2 * i] == 0 && msg->robot_2d[2 * i + 1] == 0)
+          continue;
+        int add = 0;
+        for (int j = 0; j < pnp_solver_module2.region_num; j++)
+        {
+          std::vector<cv::Point2f> firstPoints;
+          firstPoints.resize(pnp_solver_module2.region_list_num[j]);
+
+          std::copy(pnp_solver_module2.Points2d.begin() + add, pnp_solver_module2.Points2d.begin() + add + pnp_solver_module2.region_list_num[j], firstPoints.begin());
+          add += pnp_solver_module2.region_list_num[j];
+          if (pointInPolygon(point, firstPoints) && msg->robot_id[i] == 1) // 1 blue 2 red 3 uk
+          {
+            //RCLCPP_INFO(this->get_logger(), "进入警戒");
+            warn_flag[1][j]++;
+          }
+        }
+      }
+    }
+  }
+
+  void OrientationNode::send_tf()
   {
     if (status_flag == 1 && moo == 0)
     {
       // 按下Enter正式执行主程序前信息发布的代码
-
-      moo = 1;
 
       RCLCPP_INFO(this->get_logger(), "开始正式运行");
 
@@ -292,107 +345,54 @@ namespace radar_orientation
       // tf_camera.transform.translation.z = pnp_solver_module1.tvec.at<double>(0, 2) / 1000;
 
       // Send the transformation
+
+      moo = 1;
     }
 
     detector_data();
 
     if (status_flag == 1)
     {
+      RCLCPP_INFO(this->get_logger(), "-----------------------------------------");
+      RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d  %d  %d  %d  %d", warn_flag[0][0], warn_flag[0][1], warn_flag[0][2], warn_flag[0][3], warn_flag[0][4], warn_flag[0][5], warn_flag[0][6], warn_flag[0][7]);
+      RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d  %d  %d  %d  %d", warn_flag[1][0], warn_flag[1][1], warn_flag[1][2], warn_flag[1][3], warn_flag[1][4], warn_flag[1][5], warn_flag[1][6], warn_flag[1][7]);
 
-      // 基于2d图像的警戒方案
-      for (int i = 0; i < pnp_solver_module1.region_num; i++)
-      {
-        warn_flag[i] = 0;
-      }
-
-      // 检测图像一
-      for (int i = 0; i < 12; i++)
-      {
-        cv::Point2f point(msg->robot_2d[2 * i], msg->robot_2d[2 * i + 1]);
-        if (msg->robot_2d[2 * i] == 0 && msg->robot_2d[2 * i + 1] == 0)
-          continue;
-        int add = 0;
-        for (int j = 0; j < pnp_solver_module1.region_num; j++)
-        {
-          std::vector<cv::Point2f> firstPoints;
-          firstPoints.resize(pnp_solver_module1.region_list_num[j]);
-
-          std::copy(pnp_solver_module1.Points2d.begin() + add, pnp_solver_module1.Points2d.begin() + add + pnp_solver_module1.region_list_num[j], firstPoints.begin());
-          // RCLCPP_INFO(this->get_logger(), "参数 %d %d ", add, pnp_solver_module.region_list_num[j]);
-          add += pnp_solver_module1.region_list_num[j];
-          // RCLCPP_INFO(this->get_logger(), "框位 %d %d %d %d %d %d %d %d", (int)firstPoints[0].x, (int)firstPoints[0].y, (int)firstPoints[1].x, (int)firstPoints[1].y, (int)firstPoints[2].x, (int)firstPoints[2].y, (int)firstPoints[3].x, (int)firstPoints[3].y);
-          // RCLCPP_INFO(this->get_logger(), "点位 %d %d ", msg->robot_2d[2 * i], msg->robot_2d[2 * i + 1]);
-          if (pointInPolygon(point, firstPoints) && msg->robot_id[i] == 1) // 1 blue 2 red 3 uk
-          {
-            RCLCPP_INFO(this->get_logger(), "进入警戒");
-            warn_flag[j]++;
-          }
-        }
-      }
-
-      // 检测图像二
-      /*
-      for (int i = 0; i < 12; i++)
-      {
-        cv::Point2f point(msg->robot_2d[2 * i], msg->robot_2d[2 * i + 1]);
-        if (msg->robot_2d[2 * i] == 0 && msg->robot_2d[2 * i + 1] == 0)
-          continue;
-        int add = 0;
-        for (int j = 0; j < pnp_solver_module2.region_num; j++)
-        {
-          std::vector<cv::Point2f> firstPoints;
-          firstPoints.resize(pnp_solver_module2.region_list_num[j]);
-          std::copy(pnp_solver_module2.Points2d.begin() + add, pnp_solver_module2.Points2d.begin() + add + pnp_solver_module2.region_list_num[j], firstPoints.begin());
-          add += pnp_solver_module2.region_list_num[j];
-          if (pointInPolygon(point, firstPoints) && msg->robot_id[i] == 1) // 1 blue 2 red 3 uk
-          {
-            RCLCPP_INFO(this->get_logger(), "进入警戒");
-            warn_flag[j]++;
-          }
-        }
-      }
-      */
-
-      RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d  %d  %d  %d  %d", warn_flag[0], warn_flag[1], warn_flag[2], warn_flag[3], warn_flag[4], warn_flag[5], warn_flag[6], warn_flag[7]);
-
-      if (warn_flag[0] > 0)
+      if (warn_flag[0][0] + warn_flag[1][0] > 0)
       {
         transformStamped_b1.transform.translation.x = -4.0; // 15
         transformStamped_b1.transform.translation.y = -7.0; // 8
       }
-      if (warn_flag[1] > 0)
+      if (warn_flag[0][1] + warn_flag[1][1] > 0)
       {
         transformStamped_b2.transform.translation.x = -5; // 15
         transformStamped_b3.transform.translation.y = -5; // 8
       }
-      if (warn_flag[2] > 0)
+      if (warn_flag[0][2] + warn_flag[1][2] > 0)
       {
         transformStamped_b3.transform.translation.x = 3.0;  // 15
         transformStamped_b3.transform.translation.y = -7.0; // 8
       }
-      if (warn_flag[3] > 0)
+      if (warn_flag[0][3] + warn_flag[1][3] > 0)
       {
         transformStamped_b4.transform.translation.x = 3.5;  // 15
         transformStamped_b4.transform.translation.y = -3.5; // 8
       }
 
-      if (warn_flag[4] > 0)
+      if (warn_flag[0][4] + warn_flag[1][4] > 0)
       {
-
       }
-      if (warn_flag[5] > 0)
+      if (warn_flag[0][5] + warn_flag[1][5] > 0)
       {
-
       }
-      if (warn_flag[6] > 0)
+      if (warn_flag[0][6] + warn_flag[1][6] > 0)
       {
-        transformStamped_b5.transform.translation.x = -3.0;  // 15
-        transformStamped_b5.transform.translation.y = 7.0; // 8
+        transformStamped_b5.transform.translation.x = -3.0; // 15
+        transformStamped_b5.transform.translation.y = 7.0;  // 8
       }
-      if (warn_flag[7] > 0)
+      if (warn_flag[0][7] + warn_flag[1][7] > 0)
       {
-        transformStamped_b6.transform.translation.x = -3.5;  // 15
-        transformStamped_b6.transform.translation.y = 3.5; // 8
+        transformStamped_b6.transform.translation.x = -3.5; // 15
+        transformStamped_b6.transform.translation.y = 3.5;  // 8
       }
 
       transformStamped_b1.header.stamp = now();

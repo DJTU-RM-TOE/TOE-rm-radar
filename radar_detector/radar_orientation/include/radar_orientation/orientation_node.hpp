@@ -14,6 +14,7 @@ namespace radar_orientation
 {
   // 全局状态标志
   int status_flag = 0;
+  int color_flag = 0;
   int point_select = 0;
   // 主节点类
   class OrientationNode : public rclcpp::Node
@@ -29,27 +30,26 @@ namespace radar_orientation
     pnp_solver pnp_solver_module2;
 
     // 全局参数读取
-    void parmaCallback();
-    void callbackGlobalParam(std::shared_future<std::vector<rclcpp::Parameter>> future);
+    void paramCallback(const radar_interfaces::msg::GlobalParam::SharedPtr msg);
 
     //键盘接收回调
     rclcpp::Subscription<radar_interfaces::msg::Keyboard>::SharedPtr subscription_keyboard_;
     void keyboardCallback(const radar_interfaces::msg::Keyboard::SharedPtr msg);
     int speed = 1;
+
+    //
+    void detector1(const radar_interfaces::msg::RobotFlag::SharedPtr msg);
+    void detector2(const radar_interfaces::msg::RobotFlag::SharedPtr msg);
     
     double rvecArray[3];
     double tvecArray[3];
 
     void detector_data();
-    void send_tf(const radar_interfaces::msg::RobotFlag::SharedPtr msg);
+    void send_tf();
     bool pointInPolygon(cv::Point2f point, const std::vector<cv::Point2f> &polygon);
 
-    rclcpp::Subscription<radar_interfaces::msg::RobotFlag>::SharedPtr subscription_robotflag_;
-
-    // 状态机发布
-    rclcpp::Publisher<radar_interfaces::msg::Status>::SharedPtr publisher_status_;
-
-    radar_interfaces::msg::Status message_;
+    rclcpp::Subscription<radar_interfaces::msg::RobotFlag>::SharedPtr subscription_robotflag_1_;
+    rclcpp::Subscription<radar_interfaces::msg::RobotFlag>::SharedPtr subscription_robotflag_2_;
 
     //
     std::shared_ptr<tf2_ros::TransformBroadcaster> broadcaster_;
@@ -70,21 +70,15 @@ namespace radar_orientation
     geometry_msgs::msg::TransformStamped tf_camera;
 
     rclcpp::TimerBase::SharedPtr timer_;
+    rclcpp::TimerBase::SharedPtr send_tf_timer_;
 
     //
-    int warn_flag[8] = {0};
+    int warn_flag[2][8] = {0};
     //
 
     // 全局参数
-    std::shared_ptr<rclcpp::AsyncParametersClient> parameters_client;
-    std::vector<rclcpp::Parameter> parameters;
 
-    std::shared_future<std::vector<rclcpp::Parameter>> parameters_state;
-
-    std::vector<rclcpp::Parameter> result;
-    rclcpp::Parameter param;
-
-    rclcpp::TimerBase::SharedPtr parma_timer_;
+    rclcpp::Subscription<radar_interfaces::msg::GlobalParam>::SharedPtr subscription_param_;
 
     int moo = 0;
   };

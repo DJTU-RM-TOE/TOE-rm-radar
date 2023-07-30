@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(radar_ui)
+project(none_camera)
 
 ## Use C++14
 set(CMAKE_CXX_STANDARD 14)
@@ -10,38 +10,22 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #######################
 find_package(ament_cmake_auto REQUIRED)
 find_package(OpenCV REQUIRED)
-find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
-
-set(QT_LIBRARIES Qt5::Widgets)
-
 ament_auto_find_build_dependencies()
 
 ###########
 ## Build ##
 ###########
 
-ament_auto_add_executable(qt5_ui
-    src/qt5_ui.cpp
-)
-
-target_include_directories(qt5_ui PUBLIC ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(qt5_ui ${OpenCV_LIBS} ${QT_LIBRARIES})
-
 ament_auto_add_library(${PROJECT_NAME} SHARED
   DIRECTORY src
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS} ${QT_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS})
 
 rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN map_2d_ui::Map2dUiNode
-  EXECUTABLE map_2d_ui_node
-)
-
-rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN calibration_ui::calibration_ui_node
-  EXECUTABLE calibration_ui_node
+  PLUGIN none_camera::NoneCameraNode
+  EXECUTABLE none_camera_node
 )
 
 #############
@@ -60,6 +44,5 @@ endif()
 
 ament_auto_package(
   INSTALL_TO_SHARE
-  image
-  urdf
+  video
 )

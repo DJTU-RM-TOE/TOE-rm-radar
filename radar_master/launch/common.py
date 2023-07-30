@@ -91,15 +91,6 @@ def get_map_2D_node(package, plugin):
         extra_arguments=[{"use_intra_process_comms": True}],
     )
     
-def get_save_node(package, plugin):
-    return ComposableNode(
-        package=package,
-        plugin=plugin,
-        name="save_node",
-        parameters=[node_params],
-        extra_arguments=[{"use_intra_process_comms": True}],
-    )
-    
 def get_serial_node(package, plugin):
     return ComposableNode(
         package=package,
@@ -109,7 +100,7 @@ def get_serial_node(package, plugin):
         extra_arguments=[{"use_intra_process_comms": True}],
     )
     
-def get_radar_ui_container(ui_node,save_node,serial_node):
+def get_radar_ui_container(ui_node,serial_node):
     return ComposableNodeContainer(
         name='radar_ui_container',
         namespace='',
@@ -117,8 +108,6 @@ def get_radar_ui_container(ui_node,save_node,serial_node):
         executable='component_container',
         composable_node_descriptions=[
             ui_node,
-            #save_node,
-            #serial_node
         ],
         output='screen',
         ros_arguments=['--ros-args', '--log-level',
@@ -127,6 +116,14 @@ def get_radar_ui_container(ui_node,save_node,serial_node):
     )
 
 def get_radar_identification_node(package, executable, name):
+    return Node(
+        package=package,  # 替换为你的包名
+        executable=executable,  # 替换为你的可执行文件名
+        name=name,
+        parameters=[node_params],
+    )
+    
+def get_keyboard_node(package, executable, name):
     return Node(
         package=package,  # 替换为你的包名
         executable=executable,  # 替换为你的可执行文件名

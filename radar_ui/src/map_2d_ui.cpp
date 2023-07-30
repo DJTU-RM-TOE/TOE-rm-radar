@@ -7,7 +7,7 @@
 #include <tf2_ros/transform_listener.h>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 // msg
-#include <radar_interfaces/msg/status.hpp>
+#include "radar_interfaces/msg/global_param.hpp"
 
 // 场地实地大小数据 单位m
 #define MAP_Y_MAX 28
@@ -28,11 +28,9 @@ namespace map_2d_ui
     public:
         explicit Map2dUiNode(const rclcpp::NodeOptions &options) : Node("map_2d_ui_node", options)
         {
-            parameters_client =
-                std::make_shared<rclcpp::AsyncParametersClient>(this, "/global_parameter_server");
-            parameters_client->wait_for_service();
-
-            parma_timer_ = this->create_wall_timer(std::chrono::milliseconds(50), std::bind(&Map2dUiNode::parmaCallback, this));
+            subscription_param_ = this->create_subscription<radar_interfaces::msg::GlobalParam>(
+                "global_param", 10,
+                std::bind(&Map2dUiNode::paramCallback, this, std::placeholders::_1));
 
             tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
             tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
@@ -54,7 +52,7 @@ namespace map_2d_ui
             // 定时发布图像消息
             timer_ = this->create_wall_timer(std::chrono::milliseconds(20), [this]()
                                              {
-                                                while(radar_status == 1)
+                                                while(status_flag == 1)
                                                 {
 
                                                     img_msg_->header.stamp = this->now(); // 更新时间戳
@@ -79,11 +77,16 @@ namespace map_2d_ui
                                                     img_msg_ = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", map).toImageMsg();
                                                     image_pub_->publish(*img_msg_); // 发布图像消息
                                                 } });
-
             RCLCPP_INFO(this->get_logger(), "finish");
         }
 
     private:
+        void paramCallback(const radar_interfaces::msg::GlobalParam::SharedPtr msg)
+        {
+            status_flag = msg->status;
+            color_flag = msg->color;
+        }
+
         void listenTf()
         {
 
@@ -113,22 +116,8 @@ namespace map_2d_ui
             }
             catch (tf2::TransformException &ex)
             {
-               //RCLCPP_WARN(this->get_logger(), "Failed to receive transform: %s", ex.what());
+                // RCLCPP_WARN(this->get_logger(), "Failed to receive transform: %s", ex.what());
             }
-        }
-
-        void parmaCallback()
-        {
-            parameters_state = parameters_client->get_parameters(
-                {"state"},
-                std::bind(&Map2dUiNode::callbackGlobalParam, this, std::placeholders::_1));
-        }
-
-        void callbackGlobalParam(std::shared_future<std::vector<rclcpp::Parameter>> future)
-        {
-            result = future.get();
-            param = result.at(0);
-            radar_status = param.as_int();
         }
 
         // 2dmap发布
@@ -156,18 +145,11 @@ namespace map_2d_ui
         int height;
 
         // 状态
-        int radar_status;
+        int status_flag = 0;
+        int color_flag = 0;
 
         // 全局参数
-        std::shared_ptr<rclcpp::AsyncParametersClient> parameters_client;
-        std::vector<rclcpp::Parameter> parameters;
-
-        std::shared_future<std::vector<rclcpp::Parameter>> parameters_state;
-
-        std::vector<rclcpp::Parameter> result;
-        rclcpp::Parameter param;
-
-        rclcpp::TimerBase::SharedPtr parma_timer_;
+        rclcpp::Subscription<radar_interfaces::msg::GlobalParam>::SharedPtr subscription_param_;
     };
 }
 
