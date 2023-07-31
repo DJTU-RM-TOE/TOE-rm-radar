@@ -33,7 +33,7 @@ namespace calibration_ui
           std::bind(&calibration_ui_node::paramCallback, this, std::placeholders::_1));
 
       subscription_image_raw1_ = create_subscription<sensor_msgs::msg::Image>(
-          "image_raw_1", 10, std::bind(&calibration_ui_node::videoCallback_1, this, std::placeholders::_1));
+          "image_raw_1", rclcpp::SensorDataQoS(), std::bind(&calibration_ui_node::videoCallback_1, this, std::placeholders::_1));
 
       subscription_calibrationui_1_ = create_subscription<radar_interfaces::msg::CalibrationUi>(
           "calibration_1", 10, std::bind(&calibration_ui_node::CalibrationCallback1, this, std::placeholders::_1));
@@ -42,7 +42,7 @@ namespace calibration_ui
           "calibration_tf_1", 10, std::bind(&calibration_ui_node::CalibrationTfCallback1, this, std::placeholders::_1));
 
       subscription_image_raw2_ = create_subscription<sensor_msgs::msg::Image>(
-          "image_raw_2", 10, std::bind(&calibration_ui_node::videoCallback_2, this, std::placeholders::_1));
+          "image_raw_2", rclcpp::SensorDataQoS(), std::bind(&calibration_ui_node::videoCallback_2, this, std::placeholders::_1));
 
       subscription_calibrationui_2_ = create_subscription<radar_interfaces::msg::CalibrationUi>(
           "calibration_2", 10, std::bind(&calibration_ui_node::CalibrationCallback2, this, std::placeholders::_1));

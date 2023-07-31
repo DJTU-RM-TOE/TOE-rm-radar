@@ -1,15 +1,22 @@
+#ros2
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy, QoSHistoryPolicy
 from sensor_msgs.msg import Image
+
 from cv_bridge import CvBridge
 import cv2
 
-from .utils.utils import preproc, vis
-from .utils.utils import BaseEngine
+#pack
 import numpy as np
 import time
 import os
 import argparse
+
+#self
+from .utils.utils import preproc, vis
+from .utils.utils import BaseEngine
+
 
 from radar_interfaces.msg import RobotFlag
 
@@ -25,12 +32,19 @@ class RadarIdentificationSubscriber(Node):
         self.pred = Predictor(engine_path="/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_detector/radar_identification/radar_identification/model/yolov8n.trt")
         self.pred.get_fps()
         
+        qos_profile = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=10
+        )
+
+    
         super().__init__('radar_identification')
         self.subscription = self.create_subscription(
             Image,
             self.declare_parameter('recive_image', 'image_raw').value,
             self.callback,
-            10
+            qos_profile
         )
         
         self.cv_bridge = CvBridge()

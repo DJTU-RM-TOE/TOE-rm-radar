@@ -10,7 +10,7 @@
     camera_info_url: package://radar_master/config/camera_info_1.yaml
     topic_name: "image_raw_1"
     frame_id: "camera_1_frame"
-    use_sensor_data_qos: false
+    use_sensor_data_qos: true
 
     exposure_time: 30000
     gain: 5.0
@@ -24,7 +24,7 @@
     camera_info_url: package://radar_master/config/camera_info_2.yaml
     topic_name: "image_raw_2"
     frame_id: "camera_2_frame"
-    use_sensor_data_qos: false
+    use_sensor_data_qos: true
 
     exposure_time: 30000
     gain: 3.0
