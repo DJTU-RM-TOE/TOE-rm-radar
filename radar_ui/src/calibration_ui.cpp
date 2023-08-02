@@ -26,13 +26,11 @@ namespace calibration_ui
         region_pointnum += region_list_[i];
       }
 
-      RCLCPP_INFO(this->get_logger(), "开始运行");
-
-      subscription_param_ = this->create_subscription<radar_interfaces::msg::GlobalParam>(
+      subscription_Param_ = this->create_subscription<radar_interfaces::msg::GlobalParam>(
           "global_param", 10,
           std::bind(&calibration_ui_node::paramCallback, this, std::placeholders::_1));
 
-      subscription_image_raw1_ = create_subscription<sensor_msgs::msg::Image>(
+      subscription_ImageRaw_1_ = create_subscription<sensor_msgs::msg::Image>(
           "image_raw_1", rclcpp::SensorDataQoS(), std::bind(&calibration_ui_node::videoCallback_1, this, std::placeholders::_1));
 
       subscription_calibrationui_1_ = create_subscription<radar_interfaces::msg::CalibrationUi>(
@@ -41,7 +39,7 @@ namespace calibration_ui
       subscription_calibrationtf_1_ = create_subscription<radar_interfaces::msg::CalibrationTf>(
           "calibration_tf_1", 10, std::bind(&calibration_ui_node::CalibrationTfCallback1, this, std::placeholders::_1));
 
-      subscription_image_raw2_ = create_subscription<sensor_msgs::msg::Image>(
+      subscription_ImageRaw_2_ = create_subscription<sensor_msgs::msg::Image>(
           "image_raw_2", rclcpp::SensorDataQoS(), std::bind(&calibration_ui_node::videoCallback_2, this, std::placeholders::_1));
 
       subscription_calibrationui_2_ = create_subscription<radar_interfaces::msg::CalibrationUi>(
@@ -359,18 +357,18 @@ namespace calibration_ui
       color_flag = msg->color;
     }
     // 全局参数
-    rclcpp::Subscription<radar_interfaces::msg::GlobalParam>::SharedPtr subscription_param_;
+    rclcpp::Subscription<radar_interfaces::msg::GlobalParam>::SharedPtr subscription_Param_;
 
     int status_flag = 0;
     int color_flag = 0;
 
     // 接收相机图像
-    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_image_raw1_;
+    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_ImageRaw_1_;
     cv_bridge::CvImageConstPtr cv_ptr_1;
     cv::Mat image_1;
     cv::Mat img_1;
 
-    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_image_raw2_;
+    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_ImageRaw_2_;
     cv_bridge::CvImageConstPtr cv_ptr_2;
     cv::Mat image_2;
     cv::Mat img_2;

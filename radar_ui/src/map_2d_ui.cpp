@@ -28,7 +28,7 @@ namespace map_2d_ui
     public:
         explicit Map2dUiNode(const rclcpp::NodeOptions &options) : Node("map_2d_ui_node", options)
         {
-            subscription_param_ = this->create_subscription<radar_interfaces::msg::GlobalParam>(
+            subscription_Param_ = this->create_subscription<radar_interfaces::msg::GlobalParam>(
                 "global_param", 10,
                 std::bind(&Map2dUiNode::paramCallback, this, std::placeholders::_1));
 
@@ -149,7 +149,7 @@ namespace map_2d_ui
         int color_flag = 0;
 
         // 全局参数
-        rclcpp::Subscription<radar_interfaces::msg::GlobalParam>::SharedPtr subscription_param_;
+        rclcpp::Subscription<radar_interfaces::msg::GlobalParam>::SharedPtr subscription_Param_;
     };
 }
 

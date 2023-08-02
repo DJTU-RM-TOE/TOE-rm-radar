@@ -8,7 +8,7 @@ from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration
 
 from launch_ros.descriptions import ComposableNode
-from launch_ros.actions import ComposableNodeContainer 
+
 from launch.actions import TimerAction
 
 launch_params = yaml.safe_load(
@@ -33,7 +33,6 @@ def get_radar_parma_node(package, executable, name):
         parameters=[node_params],
     )
     
-   
 def get_camera_node(package, plugin, name):
     return ComposableNode(
         package=package,
@@ -42,7 +41,6 @@ def get_camera_node(package, plugin, name):
         parameters=[node_params],
         extra_arguments=[{"use_intra_process_comms": True}],
     )
-
 
 def get_radar_orientation_node(package, plugin):
     return ComposableNode(
@@ -61,26 +59,6 @@ def get_calibration_ui_node(package, plugin):
     parameters=[node_params],
     extra_arguments=[{"use_intra_process_comms": True}],
 )
-
-
-    
-def get_radar_cv_container(camera_node_1,camera_node_2,radar_robot_detector_node,calibration_ui_node):
-    return ComposableNodeContainer(
-        name='radar_cv_container',
-        namespace='',
-        package='rclcpp_components',
-        executable='component_container',
-        composable_node_descriptions=[
-            camera_node_1,
-            camera_node_2,
-            radar_robot_detector_node,
-            calibration_ui_node
-        ],
-        output='screen',
-        ros_arguments=['--ros-args', '--log-level',
-                       'radar_robot_detector_node:=' + launch_params['detector_log_level']
-        ],
-    )
     
 def get_map_2D_node(package, plugin):
     return ComposableNode(
@@ -90,6 +68,14 @@ def get_map_2D_node(package, plugin):
         parameters=[node_params],
         extra_arguments=[{"use_intra_process_comms": True}],
     )
+
+def get_qt5_ui_node(package, plugin, name):
+    return ComposableNode(
+        package=package,  # 替换为你的包名
+        plugin=plugin,  # 替换为你的可执行文件名
+        name=name,
+        parameters=[node_params],
+    )
     
 def get_serial_node(package, plugin):
     return ComposableNode(
@@ -98,21 +84,6 @@ def get_serial_node(package, plugin):
         name="serial_node",
         parameters=[node_params],
         extra_arguments=[{"use_intra_process_comms": True}],
-    )
-    
-def get_radar_ui_container(ui_node,serial_node):
-    return ComposableNodeContainer(
-        name='radar_ui_container',
-        namespace='',
-        package='rclcpp_components',
-        executable='component_container',
-        composable_node_descriptions=[
-            ui_node,
-        ],
-        output='screen',
-        ros_arguments=['--ros-args', '--log-level',
-                       'map_2D_node:=' + launch_params['detector_log_level']
-        ],
     )
 
 def get_radar_identification_node(package, executable, name):
