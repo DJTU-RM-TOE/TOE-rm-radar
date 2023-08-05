@@ -20,15 +20,6 @@ ament_auto_find_build_dependencies()
 ## Build ##
 ###########
 
-
-
-#ament_auto_add_executable(qt5ui_node
-#  src/qt5_ui.cpp
-#)
-#
-#target_include_directories(qt5ui_node PUBLIC ${OpenCV_INCLUDE_DIRS})
-#target_link_libraries(qt5ui_node ${OpenCV_LIBS} ${QT_LIBRARIES})
-
 ament_auto_add_library(${PROJECT_NAME} SHARED
   DIRECTORY src
 )
@@ -44,11 +35,6 @@ rclcpp_components_register_node(${PROJECT_NAME}
 rclcpp_components_register_node(${PROJECT_NAME}
   PLUGIN calibration_ui::calibration_ui_node
   EXECUTABLE calibration_ui_node
-)
-
-rclcpp_components_register_node(${PROJECT_NAME}
-  PLUGIN qt5_ui::Qt5UiNode
-  EXECUTABLE qt5_ui_node
 )
 
 #############

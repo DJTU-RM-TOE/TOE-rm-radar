@@ -91,8 +91,8 @@ def generate_launch_description():
     # 图形界面进程 #
     ##############
     
-    qt5_ui_node = get_qt5_ui_node('radar_ui', 'qt5_ui::Qt5UiNode','qt5_ui_node')
-    qt5_ui_module = get_radar_qt5_ui_container(qt5_ui_node)
+    #qt5_ui_node = get_qt5_ui_node('radar_ui', 'qt5_ui::Qt5UiNode','qt5_ui_node')
+    #qt5_ui_module = get_radar_qt5_ui_container(qt5_ui_node)
     
     delay_radar_identification_module = TimerAction(
         period='3.0',
@@ -105,6 +105,6 @@ def generate_launch_description():
             radar_ui_module,
             delay_radar_identification_module,
             radar_parma_node,
-            qt5_ui_module
+            #qt5_ui_module
         ]
     )
