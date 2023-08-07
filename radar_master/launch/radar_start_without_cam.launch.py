@@ -95,7 +95,7 @@ def generate_launch_description():
     #qt5_ui_module = get_radar_qt5_ui_container(qt5_ui_node)
     
     delay_radar_identification_module = TimerAction(
-        period='3.0',
+        period=3.0,
         actions=[radar_identification_node_1,radar_identification_node_2]
     )
 

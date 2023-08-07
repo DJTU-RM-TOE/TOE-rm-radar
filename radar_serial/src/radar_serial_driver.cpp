@@ -155,7 +155,7 @@ namespace radar_serial_driver
 
     packet.target_robot_ID = 101 + sequence_flag;
 
-    RCLCPP_INFO(get_logger(), "%f %f", transformStamped_num[COLOR_B][sequence_flag].transform.translation.x + 14, (float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.y + 7.5);
+    //RCLCPP_INFO(get_logger(), "%f %f", transformStamped_num[COLOR_B][sequence_flag].transform.translation.x + 14, (float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.y + 7.5);
 
     if (y > 15 || x > 28)
     {

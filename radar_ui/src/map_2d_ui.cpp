@@ -59,6 +59,11 @@ namespace map_2d_ui
 
                                                     // 监听
                                                     image = cv::imread("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_ui/image/map_2D.jpg", cv::IMREAD_COLOR);
+                                                    
+                                                    if(!color_flag)
+                                                    {
+                                                        cv::flip(image, image, 0);
+                                                    }
 
                                                     Map2dUiNode::listenTf();
 
