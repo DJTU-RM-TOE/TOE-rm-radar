@@ -357,6 +357,8 @@ namespace radar_orientation
       RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d  %d  %d  %d  %d", warn_flag[0][0], warn_flag[0][1], warn_flag[0][2], warn_flag[0][3], warn_flag[0][4], warn_flag[0][5], warn_flag[0][6], warn_flag[0][7]);
       RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d  %d  %d  %d  %d", warn_flag[1][0], warn_flag[1][1], warn_flag[1][2], warn_flag[1][3], warn_flag[1][4], warn_flag[1][5], warn_flag[1][6], warn_flag[1][7]);
 
+      //transformStamped_b4.transform.translation.x = 3.5;  // 15
+      //transformStamped_b4.transform.translation.y = -3.5; // 8
       if (warn_flag[0][0] + warn_flag[1][0] > 0)
       {
         transformStamped_b1.transform.translation.x = -4.0; // 15

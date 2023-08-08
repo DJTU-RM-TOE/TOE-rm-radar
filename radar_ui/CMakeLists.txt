@@ -11,6 +11,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(ament_cmake_auto REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
+find_package(Threads REQUIRED)
+
+message("thread lib:" ${Threads_LIBS})
 
 set(QT_LIBRARIES Qt5::Widgets)
 
@@ -26,6 +29,15 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${OpenCV_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS} ${QT_LIBRARIES})
+
+ament_auto_add_executable(qt_ui 
+  src/qt_ui.cpp
+)
+
+target_include_directories(qt_ui PUBLIC ${OpenCV_INCLUDE_DIRS})
+link_directories(/usr/lib/x86_64-linux-gnu/)
+target_link_libraries(qt_ui ${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT} Threads::Threads)
+# LD_PRELOAD=/snap/core22/current/lib/x86_64-linux-gnu/libpthread.so.0
 
 rclcpp_components_register_node(${PROJECT_NAME}
   PLUGIN map_2d_ui::Map2dUiNode

@@ -33,6 +33,7 @@ def get_radar_ui_container(ui_node,serial_node):
         executable='component_container',
         composable_node_descriptions=[
             ui_node,
+            serial_node,
         ],
         output='screen',
     )

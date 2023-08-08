@@ -78,7 +78,7 @@ namespace calibration_ui
       points.push_back(cv::Point(point_x[2], point_y[2]));
       points.push_back(cv::Point(point_x[3], point_y[3]));
 
-      cv::polylines(image_1, points, true, cv::Scalar(0, 255, 0), 1);
+      cv::polylines(image_1, points, true, cv::Scalar(0, 255, 0), 3);
 
       // 场地框
       if (status_flag == 1)

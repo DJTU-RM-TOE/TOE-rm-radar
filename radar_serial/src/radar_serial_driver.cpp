@@ -147,8 +147,8 @@ namespace radar_serial_driver
     RadarSerialDriver::listenTf();
 
     // send Blue
-    float y = (float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.y + 7.5;
-    float x = (float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.x + 14;
+    float y = -(float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.y + 7.5;
+    float x = -(float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.x + 14;
 
     packet.target_position_y = y;
     packet.target_position_x = x;

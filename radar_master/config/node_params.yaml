@@ -2,7 +2,7 @@
   ros__parameters:
     model: 0 
     status: 0
-    color: 0
+    color: 1 #blue0 red1 
 
 /camera_1_node:
   ros__parameters:
@@ -12,8 +12,8 @@
     frame_id: "camera_1_frame"
     use_sensor_data_qos: true
 
-    exposure_time: 30000
-    gain: 5.0
+    exposure_time: 50000
+    gain: 10.0
 
     offset_x: 0
     offset_y: 0
@@ -26,8 +26,8 @@
     frame_id: "camera_2_frame"
     use_sensor_data_qos: true
 
-    exposure_time: 30000
-    gain: 3.0
+    exposure_time: 50000
+    gain: 10.0
 
     offset_x: 0
     offset_y: 0
