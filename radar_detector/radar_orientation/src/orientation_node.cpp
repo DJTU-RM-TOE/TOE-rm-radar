@@ -66,38 +66,44 @@ namespace radar_orientation
     transformStamped_b1.header.frame_id = "map";
     transformStamped_b1.child_frame_id = "RobotB1";
     transformStamped_b1.transform.translation.x = 15.5; // 15
-    transformStamped_b1.transform.translation.y = -6.0; // 8
+    transformStamped_b1.transform.translation.y = -7.0; // 8
     transformStamped_b1.transform.translation.z = 0.0;
 
     transformStamped_b2.header.frame_id = "map";
     transformStamped_b2.child_frame_id = "RobotB2";
     transformStamped_b2.transform.translation.x = 15.5;
-    transformStamped_b2.transform.translation.y = -5.0;
+    transformStamped_b2.transform.translation.y = -6.0;
     transformStamped_b2.transform.translation.z = 0.0;
 
     transformStamped_b3.header.frame_id = "map";
     transformStamped_b3.child_frame_id = "RobotB3";
     transformStamped_b3.transform.translation.x = 15.5;
-    transformStamped_b3.transform.translation.y = -4.0;
+    transformStamped_b3.transform.translation.y = -5.0;
     transformStamped_b3.transform.translation.z = 0.0;
 
     transformStamped_b4.header.frame_id = "map";
     transformStamped_b4.child_frame_id = "RobotB4";
     transformStamped_b4.transform.translation.x = 15.5;
-    transformStamped_b4.transform.translation.y = -3.0;
+    transformStamped_b4.transform.translation.y = -4.0;
     transformStamped_b4.transform.translation.z = 0.0;
 
     transformStamped_b5.header.frame_id = "map";
     transformStamped_b5.child_frame_id = "RobotB5";
     transformStamped_b5.transform.translation.x = 15.5;
-    transformStamped_b5.transform.translation.y = -2.0;
+    transformStamped_b5.transform.translation.y = -3.0;
     transformStamped_b5.transform.translation.z = 0.0;
 
     transformStamped_b6.header.frame_id = "map";
     transformStamped_b6.child_frame_id = "RobotB6";
     transformStamped_b6.transform.translation.x = 15.5;
-    transformStamped_b6.transform.translation.y = -1.0;
+    transformStamped_b6.transform.translation.y = -2.0;
     transformStamped_b6.transform.translation.z = 0.0;
+
+    transformStamped_b7.header.frame_id = "map";
+    transformStamped_b7.child_frame_id = "RobotB7";
+    transformStamped_b7.transform.translation.x = 15.5;
+    transformStamped_b7.transform.translation.y = -1.0;
+    transformStamped_b7.transform.translation.z = 0.0;
 
     transformStamped_r1.header.frame_id = "map";
     transformStamped_r1.child_frame_id = "RobotR1";
@@ -134,6 +140,12 @@ namespace radar_orientation
     transformStamped_r6.transform.translation.x = 15.5;
     transformStamped_r6.transform.translation.y = 6.0;
     transformStamped_r6.transform.translation.z = 0.0;
+
+    transformStamped_r7.header.frame_id = "map";
+    transformStamped_r7.child_frame_id = "RobotR7";
+    transformStamped_r7.transform.translation.x = 15.5;
+    transformStamped_r7.transform.translation.y = 7.0;
+    transformStamped_r7.transform.translation.z = 0.0;
   }
 
   bool OrientationNode::pointInPolygon(cv::Point2f point, const std::vector<cv::Point2f> &polygon)
@@ -353,18 +365,45 @@ namespace radar_orientation
 
     if (status_flag == 1)
     {
-      //RCLCPP_INFO(this->get_logger(), "-----------------------------------------");
-      //RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d  %d  %d  %d  %d", warn_flag[0][0], warn_flag[0][1], warn_flag[0][2], warn_flag[0][3], warn_flag[0][4], warn_flag[0][5], warn_flag[0][6], warn_flag[0][7]);
-      //RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d  %d  %d  %d  %d", warn_flag[1][0], warn_flag[1][1], warn_flag[1][2], warn_flag[1][3], warn_flag[1][4], warn_flag[1][5], warn_flag[1][6], warn_flag[1][7]);
+      // RCLCPP_INFO(this->get_logger(), "-----------------------------------------");
+      // RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d  %d  %d  %d  %d", warn_flag[0][0], warn_flag[0][1], warn_flag[0][2], warn_flag[0][3], warn_flag[0][4], warn_flag[0][5], warn_flag[0][6], warn_flag[0][7]);
+      // RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d  %d  %d  %d  %d", warn_flag[1][0], warn_flag[1][1], warn_flag[1][2], warn_flag[1][3], warn_flag[1][4], warn_flag[1][5], warn_flag[1][6], warn_flag[1][7]);
 
-      // transformStamped_b4.transform.translation.x = 3.5;  // 15
-      // transformStamped_b4.transform.translation.y = -3.5; // 8
       if (color_flag == 1)
       {
+        transformStamped_b1.transform.translation.x = -4.0; // 15
+        transformStamped_b1.transform.translation.y = -6.8; // 8
+        transformStamped_b2.transform.translation.x = -5; // 15
+        transformStamped_b2.transform.translation.y = -5; // 8
+        transformStamped_b3.transform.translation.x = 3.0;  // 15
+        transformStamped_b3.transform.translation.y = -6.8; // 8
+        transformStamped_b4.transform.translation.x = 3.3;  // 15
+        transformStamped_b4.transform.translation.y = -3.3; // 8
+        transformStamped_b5.transform.translation.x = 4.2; // 15
+        transformStamped_b5.transform.translation.y = 0.0; // 8
+        transformStamped_b6.transform.translation.x = -3.3; // 15
+        transformStamped_b6.transform.translation.y = 3.3;  // 8
+        transformStamped_b7.transform.translation.x = -1.5; // 15
+        transformStamped_b7.transform.translation.y = -4.8; // 8
+        transformStamped_b1.transform.translation.x = -4.0; // 15
+        transformStamped_b1.transform.translation.y = -6.8; // 8
+        transformStamped_b2.transform.translation.x = -5; // 15
+        transformStamped_b2.transform.translation.y = -5; // 8
+        transformStamped_b3.transform.translation.x = 3.0;  // 15
+        transformStamped_b3.transform.translation.y = -6.8; // 8
+        transformStamped_b4.transform.translation.x = 3.3;  // 15
+        transformStamped_b4.transform.translation.y = -3.3; // 8
+        transformStamped_b5.transform.translation.x = 4.2; // 15
+        transformStamped_b5.transform.translation.y = 0.0; // 8
+        transformStamped_b6.transform.translation.x = -3.3; // 15
+        transformStamped_b6.transform.translation.y = 3.3;  // 8
+        transformStamped_b7.transform.translation.x = -1.5; // 15
+        transformStamped_b7.transform.translation.y = -4.8; // 8
+
         if (warn_flag[0][0] + warn_flag[1][0] > 0)
         {
           transformStamped_b1.transform.translation.x = -4.0; // 15
-          transformStamped_b1.transform.translation.y = -7.0; // 8
+          transformStamped_b1.transform.translation.y = -6.8; // 8
         }
         if (warn_flag[0][1] + warn_flag[1][1] > 0)
         {
@@ -374,37 +413,65 @@ namespace radar_orientation
         if (warn_flag[0][2] + warn_flag[1][2] > 0)
         {
           transformStamped_b3.transform.translation.x = 3.0;  // 15
-          transformStamped_b3.transform.translation.y = -7.0; // 8
+          transformStamped_b3.transform.translation.y = -6.8; // 8
         }
         if (warn_flag[0][3] + warn_flag[1][3] > 0)
         {
-          transformStamped_b4.transform.translation.x = 3.5;  // 15
-          transformStamped_b4.transform.translation.y = -3.5; // 8
+          transformStamped_b4.transform.translation.x = 3.3;  // 15
+          transformStamped_b4.transform.translation.y = -3.3; // 8
         }
 
         if (warn_flag[0][4] + warn_flag[1][4] > 0)
         {
+          transformStamped_b5.transform.translation.x = 4.2; // 15
+          transformStamped_b5.transform.translation.y = 0.0;  // 8
         }
         if (warn_flag[0][5] + warn_flag[1][5] > 0)
         {
+          transformStamped_b6.transform.translation.x = -3.3; // 15
+          transformStamped_b6.transform.translation.y = 3.3;  // 8
         }
         if (warn_flag[0][6] + warn_flag[1][6] > 0)
         {
-          transformStamped_b5.transform.translation.x = -3.0; // 15
-          transformStamped_b5.transform.translation.y = 7.0;  // 8
-        }
-        if (warn_flag[0][7] + warn_flag[1][7] > 0)
-        {
-          transformStamped_b6.transform.translation.x = -3.5; // 15
-          transformStamped_b6.transform.translation.y = 3.5;  // 8
+          transformStamped_b7.transform.translation.x = -1.5; // 15
+          transformStamped_b7.transform.translation.y = 4.8;  // 8
         }
       }
       else
       {
+        transformStamped_r1.transform.translation.x = -4.0; // 15
+        transformStamped_r1.transform.translation.y = -6.8; // 8
+        transformStamped_r2.transform.translation.x = -5; // 15
+        transformStamped_r2.transform.translation.y = -5; // 8
+        transformStamped_r3.transform.translation.x = 3.0;  // 15
+        transformStamped_r3.transform.translation.y = -6.8; // 8
+        transformStamped_r4.transform.translation.x = 3.3;  // 15
+        transformStamped_r4.transform.translation.y = -3.3; // 8
+        transformStamped_r5.transform.translation.x = 4.2; // 15
+        transformStamped_r5.transform.translation.y = 0.0; // 8
+        transformStamped_r6.transform.translation.x = -3.3; // 15
+        transformStamped_r6.transform.translation.y = 3.3;  // 8
+        transformStamped_r7.transform.translation.x = -1.5; // 15
+        transformStamped_r7.transform.translation.y = -4.8; // 8
+        transformStamped_r1.transform.translation.x = -4.0; // 15
+        transformStamped_r1.transform.translation.y = -6.8; // 8
+        transformStamped_r2.transform.translation.x = -5; // 15
+        transformStamped_r2.transform.translation.y = -5; // 8
+        transformStamped_r3.transform.translation.x = 3.0;  // 15
+        transformStamped_r3.transform.translation.y = -6.8; // 8
+        transformStamped_r4.transform.translation.x = 3.3;  // 15
+        transformStamped_r4.transform.translation.y = -3.3; // 8
+        transformStamped_r5.transform.translation.x = 4.2; // 15
+        transformStamped_r5.transform.translation.y = 0.0; // 8
+        transformStamped_r6.transform.translation.x = -3.3; // 15
+        transformStamped_r6.transform.translation.y = 3.3;  // 8
+        transformStamped_r7.transform.translation.x = -1.5; // 15
+        transformStamped_r7.transform.translation.y = -4.8; // 8
+
         if (warn_flag[0][0] + warn_flag[1][0] > 0)
         {
           transformStamped_r1.transform.translation.x = -4.0; // 15
-          transformStamped_r1.transform.translation.y = -7.0; // 8
+          transformStamped_r1.transform.translation.y = -6.8; // 8
         }
         if (warn_flag[0][1] + warn_flag[1][1] > 0)
         {
@@ -414,29 +481,28 @@ namespace radar_orientation
         if (warn_flag[0][2] + warn_flag[1][2] > 0)
         {
           transformStamped_r3.transform.translation.x = 3.0;  // 15
-          transformStamped_r3.transform.translation.y = -7.0; // 8
+          transformStamped_r3.transform.translation.y = -6.8; // 8
         }
         if (warn_flag[0][3] + warn_flag[1][3] > 0)
         {
-          transformStamped_r4.transform.translation.x = 3.5;  // 15
-          transformStamped_r4.transform.translation.y = -3.5; // 8
+          transformStamped_r4.transform.translation.x = 3.3;  // 15
+          transformStamped_r4.transform.translation.y = -3.3; // 8
         }
 
         if (warn_flag[0][4] + warn_flag[1][4] > 0)
         {
+          transformStamped_r5.transform.translation.x = 4.2; // 15
+          transformStamped_r5.transform.translation.y = 0.0; // 8
         }
         if (warn_flag[0][5] + warn_flag[1][5] > 0)
         {
+          transformStamped_r6.transform.translation.x = -3.3; // 15
+          transformStamped_r6.transform.translation.y = 3.3;  // 8
         }
         if (warn_flag[0][6] + warn_flag[1][6] > 0)
         {
-          transformStamped_r5.transform.translation.x = -3.0; // 15
-          transformStamped_r5.transform.translation.y = 7.0;  // 8
-        }
-        if (warn_flag[0][7] + warn_flag[1][7] > 0)
-        {
-          transformStamped_r6.transform.translation.x = -3.5; // 15
-          transformStamped_r6.transform.translation.y = 3.5;  // 8
+          transformStamped_r7.transform.translation.x = -1.5; // 15
+          transformStamped_r7.transform.translation.y = -4.8; // 8
         }
       }
 
@@ -446,6 +512,7 @@ namespace radar_orientation
       transformStamped_b4.header.stamp = now();
       transformStamped_b5.header.stamp = now();
       transformStamped_b6.header.stamp = now();
+      transformStamped_b7.header.stamp = now();
 
       transformStamped_r1.header.stamp = now();
       transformStamped_r2.header.stamp = now();
@@ -453,6 +520,7 @@ namespace radar_orientation
       transformStamped_r4.header.stamp = now();
       transformStamped_r5.header.stamp = now();
       transformStamped_r6.header.stamp = now();
+      transformStamped_r7.header.stamp = now();
 
       broadcaster_->sendTransform(transformStamped_b1);
       broadcaster_->sendTransform(transformStamped_b2);
@@ -460,6 +528,7 @@ namespace radar_orientation
       broadcaster_->sendTransform(transformStamped_b4);
       broadcaster_->sendTransform(transformStamped_b5);
       broadcaster_->sendTransform(transformStamped_b6);
+      broadcaster_->sendTransform(transformStamped_b7);
 
       broadcaster_->sendTransform(transformStamped_r1);
       broadcaster_->sendTransform(transformStamped_r2);
@@ -467,6 +536,7 @@ namespace radar_orientation
       broadcaster_->sendTransform(transformStamped_r4);
       broadcaster_->sendTransform(transformStamped_r5);
       broadcaster_->sendTransform(transformStamped_r6);
+      broadcaster_->sendTransform(transformStamped_r7);
     }
   }
 

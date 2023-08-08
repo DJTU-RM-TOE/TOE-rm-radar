@@ -13,7 +13,7 @@
 #define MAP_Y_MAX 28
 #define MAP_X_MAX 15
 
-#define MAP_CONSTANT 202
+#define MAP_CONSTANT 215
 
 // 分辨率压缩率
 #define SCALE_PERCENT 0.1
@@ -36,10 +36,13 @@ namespace map_2d_ui
             tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
 
             // 读取图像
-            image = cv::imread("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_ui/image/map_2D.jpg", cv::IMREAD_COLOR);
+            img = cv::imread("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_ui/image/map_2D.jpg", cv::IMREAD_COLOR);
 
-            width = image.cols;
-            height = image.rows;
+            img_f = img.clone();
+            cv::rotate(img_f, img_f, cv::ROTATE_180);
+
+            width = img.cols;
+            height = img.rows;
 
             // 创建图像消息
             img_msg_ = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", image).toImageMsg();
@@ -50,26 +53,29 @@ namespace map_2d_ui
             RCLCPP_INFO(this->get_logger(), "imgsize width %d height %d", width, height);
 
             // 定时发布图像消息
-            timer_ = this->create_wall_timer(std::chrono::milliseconds(20), [this]()
+            timer_ = this->create_wall_timer(std::chrono::milliseconds(100), [this]()
                                              {
-                                                while(status_flag == 1)
+                                                if(status_flag == 1)
                                                 {
-
+                                                    
                                                     img_msg_->header.stamp = this->now(); // 更新时间戳
-
-                                                    // 监听
-                                                    image = cv::imread("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_ui/image/map_2D.jpg", cv::IMREAD_COLOR);
+                                                    
                                                     
                                                     //RCLCPP_INFO(this->get_logger(), "color flag: %d", color_flag);
-
+                                                    
                                                     if(color_flag == 0)
                                                     {
-                                                        cv::flip(image, image, 0);
+                                                        image = img_f;
                                                     }
+                                                    else
+                                                    {
+                                                        image = img;
+                                                    }
+                                                    
 
                                                     Map2dUiNode::listenTf();
 
-                                                    for (int j = 0; j < 6; j++)
+                                                    for (int j = 0; j < 7; j++)
                                                     {
                                                         cv::circle(image, Robot_point[COLOR_B][j], 60, cv::Scalar(255, 0, 0), -1);
                                                         cv::circle(image, Robot_point[COLOR_R][j], 60, cv::Scalar(0, 0, 255), -1);
@@ -106,16 +112,18 @@ namespace map_2d_ui
                 transformStamped_num[COLOR_B][3] = tf_buffer_->lookupTransform("map", "RobotB4", tf2::TimePointZero);
                 transformStamped_num[COLOR_B][4] = tf_buffer_->lookupTransform("map", "RobotB5", tf2::TimePointZero);
                 transformStamped_num[COLOR_B][5] = tf_buffer_->lookupTransform("map", "RobotB6", tf2::TimePointZero);
+                transformStamped_num[COLOR_B][6] = tf_buffer_->lookupTransform("map", "RobotB7", tf2::TimePointZero);
                 transformStamped_num[COLOR_R][0] = tf_buffer_->lookupTransform("map", "RobotR1", tf2::TimePointZero);
                 transformStamped_num[COLOR_R][1] = tf_buffer_->lookupTransform("map", "RobotR2", tf2::TimePointZero);
                 transformStamped_num[COLOR_R][2] = tf_buffer_->lookupTransform("map", "RobotR3", tf2::TimePointZero);
                 transformStamped_num[COLOR_R][3] = tf_buffer_->lookupTransform("map", "RobotR4", tf2::TimePointZero);
                 transformStamped_num[COLOR_R][4] = tf_buffer_->lookupTransform("map", "RobotR5", tf2::TimePointZero);
                 transformStamped_num[COLOR_R][5] = tf_buffer_->lookupTransform("map", "RobotR6", tf2::TimePointZero);
+                transformStamped_num[COLOR_R][6] = tf_buffer_->lookupTransform("map", "RobotR7", tf2::TimePointZero);
 
                 for (int i = 0; i < 2; i++)
                 {
-                    for (int j = 0; j < 6; j++)
+                    for (int j = 0; j < 7; j++)
                     {
                         Robot_point[i][j] = cv::Point(width / 2 + transformStamped_num[i][j].transform.translation.y * MAP_CONSTANT, height / 2 + transformStamped_num[i][j].transform.translation.x * MAP_CONSTANT);
                     }
@@ -137,12 +145,14 @@ namespace map_2d_ui
         std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 
         // 坐标定义
-        geometry_msgs::msg::TransformStamped transformStamped_num[2][6];
-        cv::Point Robot_point[2][6];
+        geometry_msgs::msg::TransformStamped transformStamped_num[2][7];
+        cv::Point Robot_point[2][7];
 
         // 地图
         cv::Mat Primitive_map;
         cv::Mat map;
+        cv::Mat img;
+        cv::Mat img_f;
 
         // 带有标记的图像
         cv::Mat image;

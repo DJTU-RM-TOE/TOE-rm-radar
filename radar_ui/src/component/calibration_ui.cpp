@@ -71,79 +71,73 @@ namespace calibration_ui
       image_1 = img_1;
 
       // 标定框
-      points.clear();
+      points_1.clear();
 
-      points.push_back(cv::Point(point_x[0], point_y[0]));
-      points.push_back(cv::Point(point_x[1], point_y[1]));
-      points.push_back(cv::Point(point_x[2], point_y[2]));
-      points.push_back(cv::Point(point_x[3], point_y[3]));
+      points_1.push_back(cv::Point(point_x[0], point_y[0]));
+      points_1.push_back(cv::Point(point_x[1], point_y[1]));
+      points_1.push_back(cv::Point(point_x[2], point_y[2]));
+      points_1.push_back(cv::Point(point_x[3], point_y[3]));
 
-      cv::polylines(image_1, points, true, cv::Scalar(0, 255, 0), 3);
+      cv::polylines(image_1, points_1, true, cv::Scalar(0, 255, 0), 3);
 
       // 场地框
       if (status_flag == 1)
       {
-        points.clear();
-        points.push_back(cv::Point(region[0][0][0], region[0][0][1]));
-        points.push_back(cv::Point(region[0][1][0], region[0][1][1]));
-        points.push_back(cv::Point(region[0][2][0], region[0][2][1]));
-        points.push_back(cv::Point(region[0][3][0], region[0][3][1]));
-        cv::polylines(image_1, points, true, cv::Scalar(255, 0, 0), 2);
+        points_1.clear();
+        points_1.push_back(cv::Point(region[0][0][0], region[0][0][1]));
+        points_1.push_back(cv::Point(region[0][1][0], region[0][1][1]));
+        points_1.push_back(cv::Point(region[0][2][0], region[0][2][1]));
+        points_1.push_back(cv::Point(region[0][3][0], region[0][3][1]));
+        cv::polylines(image_1, points_1, true, cv::Scalar(255, 0, 0), 2);
 
-        points.clear();
-        points.push_back(cv::Point(region[0][4][0], region[0][4][1]));
-        points.push_back(cv::Point(region[0][5][0], region[0][5][1]));
-        points.push_back(cv::Point(region[0][6][0], region[0][6][1]));
-        points.push_back(cv::Point(region[0][7][0], region[0][7][1]));
-        cv::polylines(image_1, points, true, cv::Scalar(255, 0, 0), 2);
+        points_1.clear();
+        points_1.push_back(cv::Point(region[0][4][0], region[0][4][1]));
+        points_1.push_back(cv::Point(region[0][5][0], region[0][5][1]));
+        points_1.push_back(cv::Point(region[0][6][0], region[0][6][1]));
+        points_1.push_back(cv::Point(region[0][7][0], region[0][7][1]));
+        cv::polylines(image_1, points_1, true, cv::Scalar(255, 0, 0), 2);
 
-        points.clear();
-        points.push_back(cv::Point(region[0][8][0], region[0][8][1]));
-        points.push_back(cv::Point(region[0][9][0], region[0][9][1]));
-        points.push_back(cv::Point(region[0][10][0], region[0][10][1]));
-        points.push_back(cv::Point(region[0][11][0], region[0][11][1]));
-        cv::polylines(image_1, points, true, cv::Scalar(255, 0, 0), 2);
+        points_1.clear();
+        points_1.push_back(cv::Point(region[0][8][0], region[0][8][1]));
+        points_1.push_back(cv::Point(region[0][9][0], region[0][9][1]));
+        points_1.push_back(cv::Point(region[0][10][0], region[0][10][1]));
+        points_1.push_back(cv::Point(region[0][11][0], region[0][11][1]));
+        cv::polylines(image_1, points_1, true, cv::Scalar(255, 0, 0), 2);
 
-        points.clear();
-        points.push_back(cv::Point(region[0][12][0], region[0][12][1]));
-        points.push_back(cv::Point(region[0][13][0], region[0][13][1]));
-        points.push_back(cv::Point(region[0][14][0], region[0][14][1]));
-        points.push_back(cv::Point(region[0][15][0], region[0][15][1]));
-        points.push_back(cv::Point(region[0][16][0], region[0][16][1]));
-        points.push_back(cv::Point(region[0][17][0], region[0][17][1]));
-        points.push_back(cv::Point(region[0][18][0], region[0][18][1]));
-        cv::polylines(image_1, points, true, cv::Scalar(255, 0, 0), 2);
+        points_1.clear();
+        points_1.push_back(cv::Point(region[0][12][0], region[0][12][1]));
+        points_1.push_back(cv::Point(region[0][13][0], region[0][13][1]));
+        points_1.push_back(cv::Point(region[0][14][0], region[0][14][1]));
+        points_1.push_back(cv::Point(region[0][15][0], region[0][15][1]));
+        cv::polylines(image_1, points_1, true, cv::Scalar(255, 0, 0), 2);
 
-        points.clear();
-        points.push_back(cv::Point(region[0][19][0], region[0][19][1]));
-        points.push_back(cv::Point(region[0][20][0], region[0][20][1]));
-        points.push_back(cv::Point(region[0][21][0], region[0][21][1]));
-        points.push_back(cv::Point(region[0][22][0], region[0][22][1]));
-        cv::polylines(image_1, points, true, cv::Scalar(255, 0, 0), 2);
+        points_1.clear();
+        points_1.push_back(cv::Point(region[0][16][0], region[0][16][1]));
+        points_1.push_back(cv::Point(region[0][17][0], region[0][17][1]));
+        points_1.push_back(cv::Point(region[0][18][0], region[0][18][1]));
+        points_1.push_back(cv::Point(region[0][19][0], region[0][19][1]));
+        points_1.push_back(cv::Point(region[0][20][0], region[0][20][1]));
+        cv::polylines(image_1, points_1, true, cv::Scalar(255, 0, 0), 2);
 
-        points.clear();
-        points.push_back(cv::Point(region[0][23][0], region[0][23][1]));
-        points.push_back(cv::Point(region[0][24][0], region[0][24][1]));
-        points.push_back(cv::Point(region[0][25][0], region[0][25][1]));
-        points.push_back(cv::Point(region[0][26][0], region[0][26][1]));
-        cv::polylines(image_1, points, true, cv::Scalar(255, 0, 0), 2);
+        points_1.clear();
+        points_1.push_back(cv::Point(region[0][21][0], region[0][21][1]));
+        points_1.push_back(cv::Point(region[0][22][0], region[0][22][1]));
+        points_1.push_back(cv::Point(region[0][23][0], region[0][23][1]));
+        points_1.push_back(cv::Point(region[0][24][0], region[0][24][1]));
+        points_1.push_back(cv::Point(region[0][25][0], region[0][25][1]));
+        points_1.push_back(cv::Point(region[0][26][0], region[0][26][1]));
+        points_1.push_back(cv::Point(region[0][27][0], region[0][27][1]));
+        cv::polylines(image_1, points_1, true, cv::Scalar(255, 0, 0), 2);
 
-        points.clear();
-        points.push_back(cv::Point(region[0][27][0], region[0][27][1]));
-        points.push_back(cv::Point(region[0][28][0], region[0][28][1]));
-        points.push_back(cv::Point(region[0][29][0], region[0][29][1]));
-        points.push_back(cv::Point(region[0][30][0], region[0][30][1]));
-        cv::polylines(image_1, points, true, cv::Scalar(255, 0, 0), 2);
-
-        points.clear();
-        points.push_back(cv::Point(region[0][31][0], region[0][31][1]));
-        points.push_back(cv::Point(region[0][32][0], region[0][32][1]));
-        points.push_back(cv::Point(region[0][33][0], region[0][33][1]));
-        points.push_back(cv::Point(region[0][34][0], region[0][34][1]));
-        points.push_back(cv::Point(region[0][35][0], region[0][35][1]));
-        points.push_back(cv::Point(region[0][36][0], region[0][36][1]));
-        points.push_back(cv::Point(region[0][37][0], region[0][37][1]));
-        cv::polylines(image_1, points, true, cv::Scalar(255, 0, 0), 2);
+        points_1.clear();
+        points_1.push_back(cv::Point(region[0][28][0], region[0][28][1]));
+        points_1.push_back(cv::Point(region[0][29][0], region[0][29][1]));
+        points_1.push_back(cv::Point(region[0][30][0], region[0][30][1]));
+        points_1.push_back(cv::Point(region[0][31][0], region[0][31][1]));
+        points_1.push_back(cv::Point(region[0][32][0], region[0][32][1]));
+        points_1.push_back(cv::Point(region[0][33][0], region[0][33][1]));
+        points_1.push_back(cv::Point(region[0][34][0], region[0][34][1]));
+        cv::polylines(image_1, points_1, true, cv::Scalar(255, 0, 0), 2);
       }
     }
 
@@ -164,95 +158,89 @@ namespace calibration_ui
       image_2 = img_2;
 
       // 标定框
-      points.clear();
+      points_2.clear();
 
-      points.push_back(cv::Point(point_x[4], point_y[4]));
-      points.push_back(cv::Point(point_x[5], point_y[5]));
-      points.push_back(cv::Point(point_x[6], point_y[6]));
-      points.push_back(cv::Point(point_x[7], point_y[7]));
+      points_2.push_back(cv::Point(point_x[4], point_y[4]));
+      points_2.push_back(cv::Point(point_x[5], point_y[5]));
+      points_2.push_back(cv::Point(point_x[6], point_y[6]));
+      points_2.push_back(cv::Point(point_x[7], point_y[7]));
 
-      cv::polylines(image_2, points, true, cv::Scalar(0, 255, 0), 1);
+      cv::polylines(image_2, points_2, true, cv::Scalar(0, 255, 0), 1);
 
       // 场地框
 
       int num = 0;
       if (status_flag == 1)
       {
+        //for (int i = 0; i < 4; i++)
+        //{
+        //  points_2.clear();
+        //  for (int j = 0; j < region_list[i]; j++)
+        //  {
+        //    points_2.push_back(cv::Point(region[1][num+j][0], region[1][num+j][1]));
+        //    //RCLCPP_INFO(this->get_logger(), "region %d %d", region[1][num + j][0], region[1][num + j][1]);
+        //  }
+        //
+        //  cv::polylines(image_2, points_2, true, cv::Scalar(255, 0, 0), 2);
+        //  num += region_list[i];
+        //}
 
-        for (int i = 0; i < region_num; i++)
-        {
-          // points.clear();
-          // for (int j = 0; j < region_list[region_num]; j++)
-          //{
-          //  // points.push_back(cv::Point(region[1][num+j][0], region[1][num+j][1]));
-          //  RCLCPP_INFO(this->get_logger(), "region %d %d", region[1][num + j][0], region[1][num + j][1]);
-          //}
+        points_2.clear();
+        points_2.push_back(cv::Point(region[0][0][0], region[0][0][1]));
+        points_2.push_back(cv::Point(region[0][1][0], region[0][1][1]));
+        points_2.push_back(cv::Point(region[0][2][0], region[0][2][1]));
+        points_2.push_back(cv::Point(region[0][3][0], region[0][3][1]));
+        cv::polylines(image_2, points_2, true, cv::Scalar(255, 0, 0), 2);
 
-          // cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
-          // num += region_list[i];
+        points_2.clear();
+        points_2.push_back(cv::Point(region[0][4][0], region[0][4][1]));
+        points_2.push_back(cv::Point(region[0][5][0], region[0][5][1]));
+        points_2.push_back(cv::Point(region[0][6][0], region[0][6][1]));
+        points_2.push_back(cv::Point(region[0][7][0], region[0][7][1]));
+        cv::polylines(image_2, points_2, true, cv::Scalar(255, 0, 0), 2);
 
-          points.clear();
-          points.push_back(cv::Point(region[1][0][0], region[1][0][1]));
-          points.push_back(cv::Point(region[1][1][0], region[1][1][1]));
-          points.push_back(cv::Point(region[1][2][0], region[1][2][1]));
-          points.push_back(cv::Point(region[1][3][0], region[1][3][1]));
-          cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
+        points_2.clear();
+        points_2.push_back(cv::Point(region[0][8][0], region[0][8][1]));
+        points_2.push_back(cv::Point(region[0][9][0], region[0][9][1]));
+        points_2.push_back(cv::Point(region[0][10][0], region[0][10][1]));
+        points_2.push_back(cv::Point(region[0][11][0], region[0][11][1]));
+        cv::polylines(image_2, points_2, true, cv::Scalar(255, 0, 0), 2);
 
-          points.clear();
-          points.push_back(cv::Point(region[1][4][0], region[1][4][1]));
-          points.push_back(cv::Point(region[1][5][0], region[1][5][1]));
-          points.push_back(cv::Point(region[1][6][0], region[1][6][1]));
-          points.push_back(cv::Point(region[1][7][0], region[1][7][1]));
-          cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
+        points_2.clear();
+        points_2.push_back(cv::Point(region[0][12][0], region[0][12][1]));
+        points_2.push_back(cv::Point(region[0][13][0], region[0][13][1]));
+        points_2.push_back(cv::Point(region[0][14][0], region[0][14][1]));
+        points_2.push_back(cv::Point(region[0][15][0], region[0][15][1]));
+        cv::polylines(image_2, points_2, true, cv::Scalar(255, 0, 0), 2);
 
-          points.clear();
-          points.push_back(cv::Point(region[1][8][0], region[1][8][1]));
-          points.push_back(cv::Point(region[1][9][0], region[1][9][1]));
-          points.push_back(cv::Point(region[1][10][0], region[1][10][1]));
-          points.push_back(cv::Point(region[1][11][0], region[1][11][1]));
-          cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
+        points_2.clear();
+        points_2.push_back(cv::Point(region[0][16][0], region[0][16][1]));
+        points_2.push_back(cv::Point(region[0][17][0], region[0][17][1]));
+        points_2.push_back(cv::Point(region[0][18][0], region[0][18][1]));
+        points_2.push_back(cv::Point(region[0][19][0], region[0][19][1]));
+        points_2.push_back(cv::Point(region[0][20][0], region[0][20][1]));
+        cv::polylines(image_2, points_2, true, cv::Scalar(255, 0, 0), 2);
 
-          points.clear();
-          points.push_back(cv::Point(region[1][12][0], region[1][12][1]));
-          points.push_back(cv::Point(region[1][13][0], region[1][13][1]));
-          points.push_back(cv::Point(region[1][14][0], region[1][14][1]));
-          points.push_back(cv::Point(region[1][15][0], region[1][15][1]));
-          points.push_back(cv::Point(region[1][16][0], region[1][16][1]));
-          points.push_back(cv::Point(region[1][17][0], region[1][17][1]));
-          points.push_back(cv::Point(region[1][18][0], region[1][18][1]));
-          cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
+        points_2.clear();
+        points_2.push_back(cv::Point(region[0][21][0], region[0][21][1]));
+        points_2.push_back(cv::Point(region[0][22][0], region[0][22][1]));
+        points_2.push_back(cv::Point(region[0][23][0], region[0][23][1]));
+        points_2.push_back(cv::Point(region[0][24][0], region[0][24][1]));
+        points_2.push_back(cv::Point(region[0][25][0], region[0][25][1]));
+        points_2.push_back(cv::Point(region[0][26][0], region[0][26][1]));
+        points_2.push_back(cv::Point(region[0][27][0], region[0][27][1]));
+        cv::polylines(image_2, points_2, true, cv::Scalar(255, 0, 0), 2);
 
-          points.clear();
-          points.push_back(cv::Point(region[1][19][0], region[1][19][1]));
-          points.push_back(cv::Point(region[1][20][0], region[1][20][1]));
-          points.push_back(cv::Point(region[1][21][0], region[1][21][1]));
-          points.push_back(cv::Point(region[1][22][0], region[1][22][1]));
-          cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
-
-          points.clear();
-          points.push_back(cv::Point(region[1][23][0], region[1][23][1]));
-          points.push_back(cv::Point(region[1][24][0], region[1][24][1]));
-          points.push_back(cv::Point(region[1][25][0], region[1][25][1]));
-          points.push_back(cv::Point(region[1][26][0], region[1][26][1]));
-          cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
-
-          points.clear();
-          points.push_back(cv::Point(region[1][27][0], region[1][27][1]));
-          points.push_back(cv::Point(region[1][28][0], region[1][28][1]));
-          points.push_back(cv::Point(region[1][29][0], region[1][29][1]));
-          points.push_back(cv::Point(region[1][30][0], region[1][30][1]));
-          cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
-
-          points.clear();
-          points.push_back(cv::Point(region[1][31][0], region[1][31][1]));
-          points.push_back(cv::Point(region[1][32][0], region[1][32][1]));
-          points.push_back(cv::Point(region[1][33][0], region[1][33][1]));
-          points.push_back(cv::Point(region[1][34][0], region[1][34][1]));
-          points.push_back(cv::Point(region[1][35][0], region[1][35][1]));
-          points.push_back(cv::Point(region[1][36][0], region[1][36][1]));
-          points.push_back(cv::Point(region[1][37][0], region[1][37][1]));
-          cv::polylines(image_2, points, true, cv::Scalar(255, 0, 0), 2);
-        }
+        points_2.clear();
+        points_2.push_back(cv::Point(region[0][28][0], region[0][28][1]));
+        points_2.push_back(cv::Point(region[0][29][0], region[0][29][1]));
+        points_2.push_back(cv::Point(region[0][30][0], region[0][30][1]));
+        points_2.push_back(cv::Point(region[0][31][0], region[0][31][1]));
+        points_2.push_back(cv::Point(region[0][32][0], region[0][32][1]));
+        points_2.push_back(cv::Point(region[0][33][0], region[0][33][1]));
+        points_2.push_back(cv::Point(region[0][34][0], region[0][34][1]));
+        cv::polylines(image_2, points_2, true, cv::Scalar(255, 0, 0), 2);
+        
       }
     }
 
@@ -383,7 +371,8 @@ namespace calibration_ui
     sensor_msgs::msg::Image::SharedPtr img_msg_;
 
     // ui
-    std::vector<cv::Point> points;
+    std::vector<cv::Point> points_1;
+    std::vector<cv::Point> points_2;
 
     rclcpp::Subscription<radar_interfaces::msg::CalibrationTf>::SharedPtr subscription_calibrationtf_1_;
     rclcpp::Subscription<radar_interfaces::msg::CalibrationTf>::SharedPtr subscription_calibrationtf_2_;

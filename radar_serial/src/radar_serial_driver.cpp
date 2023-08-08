@@ -63,7 +63,7 @@ namespace radar_serial_driver
   {
     std::vector<rclcpp::Parameter> result = future.get();
     rclcpp::Parameter param = result.at(0);
-    RCLCPP_INFO(this->get_logger(), "Got color param: %ld", param.as_int());
+    // RCLCPP_INFO(this->get_logger(), "Got color param: %ld", param.as_int());
   }
 
   RadarSerialDriver::~RadarSerialDriver()
@@ -111,10 +111,12 @@ namespace radar_serial_driver
           if (id == 109)
           {
             parameters.push_back(rclcpp::Parameter("color", 0));
+            color_flag = 0;
           }
           else if (id == 9)
           {
             parameters.push_back(rclcpp::Parameter("color", 1));
+            color_flag = 1;
           }
           else
           {
@@ -135,6 +137,7 @@ namespace radar_serial_driver
 
   void RadarSerialDriver::sendData()
   {
+    //RCLCPP_INFO(get_logger(), "send");
     SendPacket packet;
 
     if (sequence_flag >= 6)
@@ -146,18 +149,29 @@ namespace radar_serial_driver
 
     RadarSerialDriver::listenTf();
 
+    float y = 0;
+    float x = 0;
+
     // send Blue
-    float y = -(float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.y + 7.5;
-    float x = -(float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.x + 14;
+    if (color_flag == 1)
+    {
+      y = -(float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.y + 7.5;
+      x = -(float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.x + 14;
+      packet.target_robot_ID = 101 + sequence_flag;
+    }
+    else
+    {
+      y = (float)transformStamped_num[COLOR_R][sequence_flag].transform.translation.y + 7.5;
+      x = (float)transformStamped_num[COLOR_R][sequence_flag].transform.translation.x + 14;
+      packet.target_robot_ID = 1 + sequence_flag;
+    }
 
     packet.target_position_y = y;
     packet.target_position_x = x;
 
-    packet.target_robot_ID = 101 + sequence_flag;
+    //RCLCPP_INFO(get_logger(), "%f %f", y, x);
 
-    //RCLCPP_INFO(get_logger(), "%f %f", transformStamped_num[COLOR_B][sequence_flag].transform.translation.x + 14, (float)transformStamped_num[COLOR_B][sequence_flag].transform.translation.y + 7.5);
-
-    if (y > 15 || x > 28)
+    if (y > 15 || x > 28 || y < 0 || x < 0)
     {
       return;
     }
@@ -173,6 +187,7 @@ namespace radar_serial_driver
     std::vector<uint8_t> data = toVector(packet);
 
     serial_driver_->port()->send(data);
+    //RCLCPP_INFO(get_logger(), "over");
   }
 
   void RadarSerialDriver::getParams()
@@ -205,12 +220,14 @@ namespace radar_serial_driver
       transformStamped_num[COLOR_B][3] = tf_buffer_->lookupTransform("map", "RobotB4", tf2::TimePointZero);
       transformStamped_num[COLOR_B][4] = tf_buffer_->lookupTransform("map", "RobotB5", tf2::TimePointZero);
       transformStamped_num[COLOR_B][5] = tf_buffer_->lookupTransform("map", "RobotB6", tf2::TimePointZero);
+      transformStamped_num[COLOR_B][6] = tf_buffer_->lookupTransform("map", "RobotB7", tf2::TimePointZero);
       transformStamped_num[COLOR_R][0] = tf_buffer_->lookupTransform("map", "RobotR1", tf2::TimePointZero);
       transformStamped_num[COLOR_R][1] = tf_buffer_->lookupTransform("map", "RobotR2", tf2::TimePointZero);
       transformStamped_num[COLOR_R][2] = tf_buffer_->lookupTransform("map", "RobotR3", tf2::TimePointZero);
       transformStamped_num[COLOR_R][3] = tf_buffer_->lookupTransform("map", "RobotR4", tf2::TimePointZero);
       transformStamped_num[COLOR_R][4] = tf_buffer_->lookupTransform("map", "RobotR5", tf2::TimePointZero);
       transformStamped_num[COLOR_R][5] = tf_buffer_->lookupTransform("map", "RobotR6", tf2::TimePointZero);
+      transformStamped_num[COLOR_R][6] = tf_buffer_->lookupTransform("map", "RobotR7", tf2::TimePointZero);
     }
     catch (tf2::TransformException &ex)
     {

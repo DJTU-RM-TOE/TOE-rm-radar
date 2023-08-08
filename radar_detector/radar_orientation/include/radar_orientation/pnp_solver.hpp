@@ -19,7 +19,7 @@ namespace radar_orientation
         std::vector<cv::Point3f> worldPoints;
         // 3D点坐标
         double worldPoints_param[4][3];
-        double region_param[38][3];
+        double region_param[35][3];
 
         std::vector<int64_t> Points4_list{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 

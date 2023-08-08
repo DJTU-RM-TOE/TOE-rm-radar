@@ -41,7 +41,6 @@ class Thread2Task
     private:
     std::mutex mtx_;
     cv::Mat image_;
-    QLabel label_;
 };
 
 class ImageViewer : public rclcpp::Node

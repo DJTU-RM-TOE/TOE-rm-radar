@@ -50,7 +50,7 @@ namespace radar_serial_driver
     std::thread receive_thread_;
     rclcpp::TimerBase::SharedPtr timer_;
 
-    geometry_msgs::msg::TransformStamped transformStamped_num[2][6];
+    geometry_msgs::msg::TransformStamped transformStamped_num[2][7];
     
     int sequence_flag = 0;
     
@@ -58,6 +58,7 @@ namespace radar_serial_driver
     std::shared_ptr<rclcpp::AsyncParametersClient> parameters_client;
     std::vector<rclcpp::Parameter> parameters;
 
+    int color_flag = 0;
   }; // namespace rm_serial_driver
 }
 

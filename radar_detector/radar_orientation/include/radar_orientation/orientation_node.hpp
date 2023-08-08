@@ -59,12 +59,14 @@ namespace radar_orientation
     geometry_msgs::msg::TransformStamped transformStamped_b4;
     geometry_msgs::msg::TransformStamped transformStamped_b5;
     geometry_msgs::msg::TransformStamped transformStamped_b6;
+    geometry_msgs::msg::TransformStamped transformStamped_b7;
     geometry_msgs::msg::TransformStamped transformStamped_r1;
     geometry_msgs::msg::TransformStamped transformStamped_r2;
     geometry_msgs::msg::TransformStamped transformStamped_r3;
     geometry_msgs::msg::TransformStamped transformStamped_r4;
     geometry_msgs::msg::TransformStamped transformStamped_r5;
     geometry_msgs::msg::TransformStamped transformStamped_r6;
+    geometry_msgs::msg::TransformStamped transformStamped_r7;
 
     geometry_msgs::msg::TransformStamped tf_camera_r;
     geometry_msgs::msg::TransformStamped tf_camera;
@@ -73,7 +75,7 @@ namespace radar_orientation
     rclcpp::TimerBase::SharedPtr send_tf_timer_;
 
     //
-    int warn_flag[2][8] = {0};
+    int warn_flag[2][7] = {0};
     //
 
     // 全局参数
