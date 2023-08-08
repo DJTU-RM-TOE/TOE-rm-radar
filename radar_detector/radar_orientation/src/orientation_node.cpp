@@ -200,7 +200,7 @@ namespace radar_orientation
           add += pnp_solver_module1.region_list_num[j];
           if (pointInPolygon(point, firstPoints) && msg->robot_id[i] == 1) // 1 blue 2 red 3 uk
           {
-            //RCLCPP_INFO(this->get_logger(), "进入警戒");
+            // RCLCPP_INFO(this->get_logger(), "进入警戒");
             warn_flag[0][j]++;
           }
         }
@@ -234,7 +234,7 @@ namespace radar_orientation
           add += pnp_solver_module2.region_list_num[j];
           if (pointInPolygon(point, firstPoints) && msg->robot_id[i] == 1) // 1 blue 2 red 3 uk
           {
-            //RCLCPP_INFO(this->get_logger(), "进入警戒");
+            // RCLCPP_INFO(this->get_logger(), "进入警戒");
             warn_flag[1][j]++;
           }
         }
@@ -353,48 +353,91 @@ namespace radar_orientation
 
     if (status_flag == 1)
     {
-      RCLCPP_INFO(this->get_logger(), "-----------------------------------------");
-      RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d  %d  %d  %d  %d", warn_flag[0][0], warn_flag[0][1], warn_flag[0][2], warn_flag[0][3], warn_flag[0][4], warn_flag[0][5], warn_flag[0][6], warn_flag[0][7]);
-      RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d  %d  %d  %d  %d", warn_flag[1][0], warn_flag[1][1], warn_flag[1][2], warn_flag[1][3], warn_flag[1][4], warn_flag[1][5], warn_flag[1][6], warn_flag[1][7]);
+      //RCLCPP_INFO(this->get_logger(), "-----------------------------------------");
+      //RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d  %d  %d  %d  %d", warn_flag[0][0], warn_flag[0][1], warn_flag[0][2], warn_flag[0][3], warn_flag[0][4], warn_flag[0][5], warn_flag[0][6], warn_flag[0][7]);
+      //RCLCPP_INFO(this->get_logger(), "是否在框内 %d  %d  %d  %d  %d  %d  %d  %d", warn_flag[1][0], warn_flag[1][1], warn_flag[1][2], warn_flag[1][3], warn_flag[1][4], warn_flag[1][5], warn_flag[1][6], warn_flag[1][7]);
 
-      //transformStamped_b4.transform.translation.x = 3.5;  // 15
-      //transformStamped_b4.transform.translation.y = -3.5; // 8
-      if (warn_flag[0][0] + warn_flag[1][0] > 0)
+      // transformStamped_b4.transform.translation.x = 3.5;  // 15
+      // transformStamped_b4.transform.translation.y = -3.5; // 8
+      if (color_flag == 1)
       {
-        transformStamped_b1.transform.translation.x = -4.0; // 15
-        transformStamped_b1.transform.translation.y = -7.0; // 8
-      }
-      if (warn_flag[0][1] + warn_flag[1][1] > 0)
-      {
-        transformStamped_b2.transform.translation.x = -5; // 15
-        transformStamped_b3.transform.translation.y = -5; // 8
-      }
-      if (warn_flag[0][2] + warn_flag[1][2] > 0)
-      {
-        transformStamped_b3.transform.translation.x = 3.0;  // 15
-        transformStamped_b3.transform.translation.y = -7.0; // 8
-      }
-      if (warn_flag[0][3] + warn_flag[1][3] > 0)
-      {
-        transformStamped_b4.transform.translation.x = 3.5;  // 15
-        transformStamped_b4.transform.translation.y = -3.5; // 8
-      }
+        if (warn_flag[0][0] + warn_flag[1][0] > 0)
+        {
+          transformStamped_b1.transform.translation.x = -4.0; // 15
+          transformStamped_b1.transform.translation.y = -7.0; // 8
+        }
+        if (warn_flag[0][1] + warn_flag[1][1] > 0)
+        {
+          transformStamped_b2.transform.translation.x = -5; // 15
+          transformStamped_b2.transform.translation.y = -5; // 8
+        }
+        if (warn_flag[0][2] + warn_flag[1][2] > 0)
+        {
+          transformStamped_b3.transform.translation.x = 3.0;  // 15
+          transformStamped_b3.transform.translation.y = -7.0; // 8
+        }
+        if (warn_flag[0][3] + warn_flag[1][3] > 0)
+        {
+          transformStamped_b4.transform.translation.x = 3.5;  // 15
+          transformStamped_b4.transform.translation.y = -3.5; // 8
+        }
 
-      if (warn_flag[0][4] + warn_flag[1][4] > 0)
-      {
+        if (warn_flag[0][4] + warn_flag[1][4] > 0)
+        {
+        }
+        if (warn_flag[0][5] + warn_flag[1][5] > 0)
+        {
+        }
+        if (warn_flag[0][6] + warn_flag[1][6] > 0)
+        {
+          transformStamped_b5.transform.translation.x = -3.0; // 15
+          transformStamped_b5.transform.translation.y = 7.0;  // 8
+        }
+        if (warn_flag[0][7] + warn_flag[1][7] > 0)
+        {
+          transformStamped_b6.transform.translation.x = -3.5; // 15
+          transformStamped_b6.transform.translation.y = 3.5;  // 8
+        }
       }
-      if (warn_flag[0][5] + warn_flag[1][5] > 0)
+      else
       {
-      }
-      if (warn_flag[0][6] + warn_flag[1][6] > 0)
-      {
-        transformStamped_b5.transform.translation.x = -3.0; // 15
-        transformStamped_b5.transform.translation.y = 7.0;  // 8
-      }
-      if (warn_flag[0][7] + warn_flag[1][7] > 0)
-      {
-        transformStamped_b6.transform.translation.x = -3.5; // 15
-        transformStamped_b6.transform.translation.y = 3.5;  // 8
+        if (warn_flag[0][0] + warn_flag[1][0] > 0)
+        {
+          transformStamped_r1.transform.translation.x = -4.0; // 15
+          transformStamped_r1.transform.translation.y = -7.0; // 8
+        }
+        if (warn_flag[0][1] + warn_flag[1][1] > 0)
+        {
+          transformStamped_r2.transform.translation.x = -5; // 15
+          transformStamped_r2.transform.translation.y = -5; // 8
+        }
+        if (warn_flag[0][2] + warn_flag[1][2] > 0)
+        {
+          transformStamped_r3.transform.translation.x = 3.0;  // 15
+          transformStamped_r3.transform.translation.y = -7.0; // 8
+        }
+        if (warn_flag[0][3] + warn_flag[1][3] > 0)
+        {
+          transformStamped_r4.transform.translation.x = 3.5;  // 15
+          transformStamped_r4.transform.translation.y = -3.5; // 8
+        }
+
+        if (warn_flag[0][4] + warn_flag[1][4] > 0)
+        {
+        }
+        if (warn_flag[0][5] + warn_flag[1][5] > 0)
+        {
+        }
+        if (warn_flag[0][6] + warn_flag[1][6] > 0)
+        {
+          transformStamped_r5.transform.translation.x = -3.0; // 15
+          transformStamped_r5.transform.translation.y = 7.0;  // 8
+        }
+        if (warn_flag[0][7] + warn_flag[1][7] > 0)
+        {
+          transformStamped_r6.transform.translation.x = -3.5; // 15
+          transformStamped_r6.transform.translation.y = 3.5;  // 8
+        }
       }
 
       transformStamped_b1.header.stamp = now();

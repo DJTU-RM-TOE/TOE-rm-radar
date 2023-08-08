@@ -60,7 +60,9 @@ namespace map_2d_ui
                                                     // 监听
                                                     image = cv::imread("/home/evence/ros2_ws/toe_ctrl/src/TOE-rm-radar/radar_ui/image/map_2D.jpg", cv::IMREAD_COLOR);
                                                     
-                                                    if(!color_flag)
+                                                    //RCLCPP_INFO(this->get_logger(), "color flag: %d", color_flag);
+
+                                                    if(color_flag == 0)
                                                     {
                                                         cv::flip(image, image, 0);
                                                     }
@@ -74,7 +76,7 @@ namespace map_2d_ui
                                                         putText(image, std::to_string(j+1), Robot_point[COLOR_B][j] + cv::Point(-30, 30), cv::FONT_HERSHEY_SIMPLEX, 3, cv::Scalar(255, 255, 255), 10);
                                                         putText(image, std::to_string(j+1), Robot_point[COLOR_R][j] + cv::Point(-30, 30), cv::FONT_HERSHEY_SIMPLEX, 3, cv::Scalar(255, 255, 255), 10);
                                                     }
-                                                    //RCLCPP_INFO(this->get_logger(), "xy: %d %d", Robot_point[COLOR_B][0].x,Robot_point[COLOR_B][0].y);
+                                                    
 
                                                     cv::Size size(image.cols * SCALE_PERCENT, image.rows * SCALE_PERCENT);
                                                     cv::resize(image, map, size, 0, 0, cv::INTER_AREA);

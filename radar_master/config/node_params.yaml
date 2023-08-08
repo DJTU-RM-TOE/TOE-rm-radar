@@ -2,7 +2,7 @@
   ros__parameters:
     model: 0 
     status: 0
-    color: 1 #blue0 red1 
+    color: 1 #blue0 red1
 
 /camera_1_node:
   ros__parameters:

@@ -110,11 +110,11 @@ namespace radar_serial_driver
           // RCLCPP_INFO(get_logger(), "id: %ld", id);
           if (id == 109)
           {
-            parameters.push_back(rclcpp::Parameter("color", 1));
+            parameters.push_back(rclcpp::Parameter("color", 0));
           }
           else if (id == 9)
           {
-            parameters.push_back(rclcpp::Parameter("color", 0));
+            parameters.push_back(rclcpp::Parameter("color", 1));
           }
           else
           {

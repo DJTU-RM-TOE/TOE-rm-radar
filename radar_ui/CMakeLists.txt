@@ -13,7 +13,7 @@ find_package(OpenCV REQUIRED)
 find_package(Qt5 COMPONENTS Core Gui Widgets REQUIRED)
 find_package(Threads REQUIRED)
 
-message("thread lib:" ${Threads_LIBS})
+#message("thread lib:" ${Threads_LIBS})
 
 set(QT_LIBRARIES Qt5::Widgets)
 
