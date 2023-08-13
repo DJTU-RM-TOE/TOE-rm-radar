@@ -101,3 +101,11 @@ def get_keyboard_node(package, executable, name):
         name=name,
         parameters=[node_params],
     )
+    
+def get_vidio_log_node(package, plugin, name):
+    return ComposableNode(
+        package=package,  # 替换为你的包名
+        plugin=plugin,  # 替换为你的可执行文件名
+        name=name,
+        parameters=[node_params],
+    )

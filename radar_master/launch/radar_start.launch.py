@@ -26,7 +26,7 @@ def get_radar_cv_container(camera_node_1,camera_node_2,radar_robot_detector_node
         output='screen',
     )
 
-def get_radar_ui_container(ui_node,serial_node):
+def get_radar_ui_container(ui_node):
     return ComposableNodeContainer(
         name='radar_ui_container',
         namespace='',
@@ -34,6 +34,17 @@ def get_radar_ui_container(ui_node,serial_node):
         executable='component_container',
         composable_node_descriptions=[
             ui_node,
+        ],
+        output='screen',
+    )
+
+def get_radar_serial_container(serial_node):
+    return ComposableNodeContainer(
+        name='radar_ui_container',
+        namespace='',
+        package='rclcpp_components',
+        executable='component_container',
+        composable_node_descriptions=[
             serial_node,
         ],
         output='screen',
@@ -88,7 +99,8 @@ def generate_launch_description():
     serial_node = get_serial_node('radar_serial', 'radar_serial_driver::RadarSerialDriver')
     map_2D_node = get_map_2D_node('radar_ui', 'map_2d_ui::Map2dUiNode')
     
-    radar_ui_module = get_radar_ui_container(map_2D_node,serial_node)
+    radar_ui_module = get_radar_ui_container(map_2D_node)
+    radar_serial_module = get_radar_serial_container(serial_node)
     
     ##############
     # 图形界面进程 #
@@ -112,6 +124,7 @@ def generate_launch_description():
             radar_ui_module,
             delay_radar_identification_module,
             radar_parma_node,
+            radar_serial_module,
             #keyboard_node
         ]
     )

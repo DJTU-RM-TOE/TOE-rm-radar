@@ -11,8 +11,8 @@ namespace radar_orientation
             imagePoints.push_back(cv::Point2f(point[i][0], point[i][1]));
         }
 
-        cameraMatrix = (cv::Mat_<double>(3, 3) << 1821.366144, 0, 625.708393, 0, 1813.445553, 514.595196, 0, 0, 1);
-        distCoeffs = (cv::Mat_<double>(5, 1) << -0.143932, 0.147997, 0, 0, 0);
+        cameraMatrix = (cv::Mat_<double>(3, 3) << 1821.366144, 0.000000, 625.708393, 0.000000, 1813.445553, 514.595196, 0, 0, 1);
+        distCoeffs = (cv::Mat_<double>(5, 1) << -0.3179, 0.9872, 0.0, 0.0, 0.000000);
 
         cv::solvePnP(worldPoints, imagePoints, cameraMatrix, distCoeffs, rvec, tvec, false, 5);
     }
@@ -42,7 +42,7 @@ namespace radar_orientation
         }
 
         region_num = region_num_param;
-        
+
         for (int i = 0; i < region_num; i++)
         {
             region_pointnum += region_list[i];
@@ -56,7 +56,5 @@ namespace radar_orientation
                 region_param[i][j] = region[i * 3 + j];
             }
         }
-
-        
     }
 }

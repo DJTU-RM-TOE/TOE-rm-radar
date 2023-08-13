@@ -28,11 +28,12 @@ namespace radar_orientation
     calibration_module[1].get_calibration_argument(this->declare_parameter<std::vector<int64_t>>("base2", calibration_module[1].acquiesce));
 
     auto base_3d = this->declare_parameter<std::vector<int64_t>>("base_3d");
+    auto base_3d_2 = this->declare_parameter<std::vector<int64_t>>("base_3d_2");
     auto region_num = this->declare_parameter<int32_t>("region_num");
     auto region_list = this->declare_parameter<std::vector<int64_t>>("region_list");
     auto region = this->declare_parameter<std::vector<int64_t>>("region");
     pnp_solver_module1.get_pnp_argument(base_3d, region_num, region_list, region);
-    pnp_solver_module2.get_pnp_argument(base_3d, region_num, region_list, region);
+    pnp_solver_module2.get_pnp_argument(base_3d_2, region_num, region_list, region);
 
     // 标定部分
     RCLCPP_INFO(this->get_logger(), "接收按键信息");
@@ -371,6 +372,7 @@ namespace radar_orientation
 
       if (color_flag == 1)
       {
+        /*
         transformStamped_b1.transform.translation.x = -4.0; // 15
         transformStamped_b1.transform.translation.y = -6.8; // 8
         transformStamped_b2.transform.translation.x = -5; // 15
@@ -399,6 +401,7 @@ namespace radar_orientation
         transformStamped_b6.transform.translation.y = 3.3;  // 8
         transformStamped_b7.transform.translation.x = -1.5; // 15
         transformStamped_b7.transform.translation.y = -4.8; // 8
+        */
 
         if (warn_flag[0][0] + warn_flag[1][0] > 0)
         {
@@ -424,7 +427,7 @@ namespace radar_orientation
         if (warn_flag[0][4] + warn_flag[1][4] > 0)
         {
           transformStamped_b5.transform.translation.x = 4.2; // 15
-          transformStamped_b5.transform.translation.y = 0.0;  // 8
+          transformStamped_b5.transform.translation.y = 0.0; // 8
         }
         if (warn_flag[0][5] + warn_flag[1][5] > 0)
         {
@@ -439,6 +442,7 @@ namespace radar_orientation
       }
       else
       {
+        /*
         transformStamped_r1.transform.translation.x = -4.0; // 15
         transformStamped_r1.transform.translation.y = -6.8; // 8
         transformStamped_r2.transform.translation.x = -5; // 15
@@ -467,7 +471,7 @@ namespace radar_orientation
         transformStamped_r6.transform.translation.y = 3.3;  // 8
         transformStamped_r7.transform.translation.x = -1.5; // 15
         transformStamped_r7.transform.translation.y = -4.8; // 8
-
+        */
         if (warn_flag[0][0] + warn_flag[1][0] > 0)
         {
           transformStamped_r1.transform.translation.x = -4.0; // 15
