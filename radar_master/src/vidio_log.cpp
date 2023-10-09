@@ -17,7 +17,7 @@ public:
 
 private:
   void imageCallback(const sensor_msgs::msg::Image::SharedPtr msg)
-  {
+  { 
     cv_bridge::CvImagePtr cv_image;
     try
     {
