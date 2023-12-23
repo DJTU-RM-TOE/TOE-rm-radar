@@ -1,8 +1,5 @@
-// Copyright (c) 2022 ChenJun
-// Licensed under the Apache-2.0 License.
-
-#ifndef RADAR_SERIAL_DRIVER__RADAR_SERIAL_DRIVER_HPP_
-#define RADAR_SERIAL_DRIVER__RADAR_SERIAL_DRIVER_HPP_
+#ifndef _RADAR_SERIAL_DRIVER_HPP_
+#define _RADAR_SERIAL_DRIVER_HPP_
 
 #include <rclcpp/publisher.hpp>
 #include <rclcpp/rclcpp.hpp>
